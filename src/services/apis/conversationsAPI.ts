@@ -2,8 +2,7 @@ import axios from "axios";
 import { newConversation, set } from "../../state/conversationState";
 import store from "../../state";
 import { useAppDispatch, useAppSelector } from "../../state";
-import { UseConversationSlice } from "../../Hooks/useConversation";
-import { UseNewConversation } from "../../Hooks/dispatchNewConversation";
+
 interface Conversation {
   conversationId: String;
   questions: String[];
@@ -132,9 +131,9 @@ export async function saveConversation(
         title: title,
         introduction: introduction,
       });
-      return "File saved"
+      return "File saved";
     } catch {
-      return "error in proccess"
+      return "error in proccess";
     }
   }
 }
