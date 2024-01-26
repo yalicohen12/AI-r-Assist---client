@@ -1,0 +1,66 @@
+.conversation-container {
+    display: flex;
+    flex-direction: row;
+    border-radius: 5px;
+    padding: 0.5rem 0.8rem;
+    margin: 0.5rem;
+    background-color: rgb(245, 229, 229);
+    gap: 0.3rem;
+    margin-bottom: 1.2rem;
+    background-color: transparent;
+    border: 1px solid rgb(98, 98, 98,1);
+    color: white;
+    cursor: pointer;
+    align-items: center;
+}
+
+.con-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #d9d9d9;
+    font-size: 1.5rem;
+    font-weight: bolder;
+    height: auto;
+    width: 2.6rem;
+    padding: 1px;
+    font-family: "segoe UI", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    border-radius: 50%;
+}
+
+.con-title {
+    /* font-weight: bold; */
+    font-size: 1.0rem;
+    flex-grow: 1;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.con-timeStamp {
+    font-size: 0.75rem;
+    margin-left: auto;
+    align-self: center;
+    font-family: 'Poppins', sans-serif;
+
+}
+
+.con-lastMessage {
+    width: 100%; 
+    font-size: 1rem;
+    align-items: flex-start;
+    flex-grow: 1;
+    font-family: 'Poppins', sans-serif;
+
+}
+
+.editIcon {
+    color: green;
+}
+
+.deleteIcon {
+    color: red;
+    margin-left: auto;
+}

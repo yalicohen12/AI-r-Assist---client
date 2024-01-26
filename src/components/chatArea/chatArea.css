@@ -1,0 +1,245 @@
+.chatArea-container {
+  flex: 0.9;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.chatArea-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6rem;
+  height: 5%;
+  width: auto;
+  padding: 0.2rem 3rem;
+  margin-top: 0.5rem;
+  color: white;
+  cursor: pointer;
+  /* border-bottom: 1px solid rgb(100, 100, 100); */
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.msgs {
+  flex: 1;
+  margin-right: 1rem;
+  padding: 10px 10px;
+  margin: 10px;
+  border-radius: 20px;
+  overflow-y: scroll;
+}
+
+.msgs::-webkit-scrollbar {
+  display: none;
+}
+.active-tab {
+  background-color: #524777;
+  color: white;
+  cursor: pointer;
+  padding: 3px 2rem;
+}
+
+.tab {
+  color: white;
+  cursor: pointer;
+  padding: 3px 2rem;
+}
+
+.tab:hover {
+  padding: 20x 15px;
+  background-color: #524777;
+  padding: 3px 2rem;
+}
+
+.logindicator {
+  /* position: absolute;
+  right: 1%; */
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-icon {
+  align-items: center;
+  justify-content: center;
+  /* position: fixed;
+  right: 7%; */
+}
+
+.search-box {
+  flex: 1;
+  border: none;
+  border-radius: 5px;
+  resize: none;
+  overflow-y: scroll;
+  font-family: "Poppins", sans-serif;
+}
+
+.search-box::-webkit-scrollbar {
+  display: none;
+}
+
+.wel-p {
+  text-align: center;
+  margin-top: 20%;
+  font-size: 32px;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.text-input-area {
+  width: 50%;
+  /* margin: 0 auto;  */
+  margin-top: auto;
+  margin-bottom: 3%;
+  background-color: rgb(28, 30, 58, 1);
+  /* background-color: rgb(4, 1, 35,1); */
+
+  padding: 10px 10px;
+  border-radius: 20px;
+  display: flex;
+  color: white;
+  font-family: "Poppins", sans-serif;
+  height: 2rem;
+}
+
+.search-box {
+  width: 100%;
+  background-color: rgb(28, 30, 58, 1);
+  /* background-color: rgb(4, 1, 35,1); */
+  color: white;
+  font-family: "Poppins", sans-serif;
+}
+
+.input-container {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 3%;
+}
+
+.btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.uploadBTN {
+  background-color: #47ba52;
+  height: auto;
+  height: 1.8rem;
+  border-radius: 0.5rem;
+  border: none;
+  flex-direction: row; /* Align children in a row */
+  align-items: center; /* Center children vertically */
+  padding: 0.5rem;
+}
+
+.dploaddiv {
+  color: white;
+  font-family: "Poppins", sans-serif;
+}
+
+.ArrowDownwardIcon {
+  position: absolute;
+  bottom: 30%;
+  right: 2%;
+  color: white;
+}
+
+.icon {
+  background-color: rgb(28, 30, 58, 1);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  background-color: rgb(28, 30, 58, 1);
+  padding: 0.4rem;
+  border-radius: 1rem;
+}
+
+.logTxt {
+  color: #4f6f52;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.logContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.2rem;
+  background-color: rgb(28, 30, 58, 1);
+  padding: 0.25rem;
+  border-radius: 1rem;
+}
+
+.userLogged {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload {
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.saveChat {
+  /* border-radius: 0.5rem; */
+  padding: 0.5rem;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.8rem;
+  /* background-color: #5a4bff; */
+  background-color: transparent;
+  border: none;
+  color: white;
+}
+
+.saveChatArea{
+  position: fixed;
+  left: 18%;
+  top: 9.5%;
+  border-radius: 0.5rem;
+  padding: 0.1rem;
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  background-color: #5a4bff;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.line {
+  width: 100%;
+  height: 1px;
+  background-color: rgb(100, 100, 100); 
+  margin-top: 5px; 
+}
+
+
+.chat-icons{
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  top: 0%;
+  right: 1%;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: center;
+}

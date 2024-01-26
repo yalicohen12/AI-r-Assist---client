@@ -1,24 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import "./App.css";
+import ChatPage from "./pages/chat/chatPage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import LoginPage from "./pages/auth/loginModal";
+import Signup from "./pages/auth/signupModal";
 
 function App() {
+  // useEffect(() => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<ChatPage />}></Route>
+
+          {/* <Route path="/login" element={<LoginPage></LoginPage>}></Route> */}
+
+          {/* <Route path="/signup" element= {<Signup></Signup>}></Route> */}
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
