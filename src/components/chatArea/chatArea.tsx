@@ -20,6 +20,8 @@ import SaveIcon from "@mui/icons-material/Save";
 import TabsNav from "../tabsNavigation/tabs";
 import LoadingSpinner from "../chatPageComponents/loader/loadingSpinner";
 import { newConversation, set } from "../../state/conversationState";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -41,11 +43,7 @@ export default function ChatArea() {
 
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (!authStatus) {
-      // setIsOpen(true);
-    }
-  }, []);
+  // gets the conversation
   async function fetchConversationMessages() {
     try {
       const response = await getConversation();
@@ -57,12 +55,14 @@ export default function ChatArea() {
       console.error("Error fetching conversation messages:", error);
     }
   }
+  // handles scroll down when new message
   useEffect(() => {
     if (messages.length != 0) {
       handleScrollDown();
     }
   }, [messages]);
 
+  //calls fetch messages when user load conversation
   useEffect(() => {
     // console.log(conID);
     if (conID) {
@@ -73,12 +73,21 @@ export default function ChatArea() {
     }
   }, [conID, fetchaedMsgs]);
 
+  const notifyLogin = () => {
+    toast.info("you must be logged in to chat with the model", {
+      position: toast.POSITION.TOP_LEFT,
+      autoClose: 3000,
+    });
+  };
+
+  // handles user send message
   async function handleSendMessage() {
-    setIsLoading(true);
     if (!localStorage.getItem("userID")) {
       setIsOpen(true);
+      notifyLogin();
       return;
     }
+    setIsLoading(true);
     if (message == "" || message.length < 2) {
       return;
     }
