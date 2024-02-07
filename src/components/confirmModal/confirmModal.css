@@ -1,0 +1,63 @@
+.modal-backround {
+  font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.3);
+  height: 100vh;
+  padding: 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: fixed;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* background-color: rgba(255, 255, 255, 0.13); */
+  background-color: white;
+  padding: 2rem;
+  z-index: 1000;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  border-radius: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+  text-align: center;
+}
+
+.modal-btns {
+  display: flex;
+  flex-direction: row;
+  /* align-items: flex-end; */
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal-title {
+  color: black;
+  font-family: "Arial";
+}
+
+.confrim-btn {
+  padding: 0.5rem 2rem;
+  border-radius: 1.1rem;
+  outline: none;
+  color: white;
+  border: none;
+  background-color: #5a4bff;
+}
+
+.cancel-btn {
+  padding: 0.5rem 2rem;
+  border-radius: 1.1rem;
+  outline: none;
+  color: white;
+  border: none;
+  background-color: #dd1717;
+}

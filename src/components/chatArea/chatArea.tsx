@@ -3,7 +3,7 @@ import React, { useState, useEffect, ReactElement, useRef } from "react";
 import "./chatArea.css";
 import { IconButton } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import DisplayMessage from "../message/message";
+import DisplayMessage from "../chatPageComponents/message/message";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -14,9 +14,12 @@ import { useNavigate } from "react-router-dom";
 import LoginModal from "../../pages/auth/loginModal";
 import { useAppDispatch, useAppSelector } from "../../state";
 import { disConnect } from "../../state/authStatusState";
-import ColorToggle from "./colorMode/colorToggle";
-import SaveChatModal from "./saveChatModal/saveChatModal";
+import ColorToggle from "../chatPageComponents/colorMode/colorToggle";
+import SaveChatModal from "../chatPageComponents/saveChatModal/saveChatModal";
 import SaveIcon from "@mui/icons-material/Save";
+import TabsNav from "../tabsNavigation/tabs";
+import LoadingSpinner from "../chatPageComponents/loader/loadingSpinner";
+import { newConversation, set } from "../../state/conversationState";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -28,6 +31,7 @@ export default function ChatArea() {
   const fetchaedMsgs = useAppSelector(
     (state) => state.conversationSlice.fetchedMessages
   );
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ReactElement[]>([]);
@@ -39,7 +43,7 @@ export default function ChatArea() {
 
   useEffect(() => {
     if (!authStatus) {
-      setIsOpen(true);
+      // setIsOpen(true);
     }
   }, []);
   async function fetchConversationMessages() {
@@ -70,6 +74,7 @@ export default function ChatArea() {
   }, [conID, fetchaedMsgs]);
 
   async function handleSendMessage() {
+    setIsLoading(true);
     if (!localStorage.getItem("userID")) {
       setIsOpen(true);
       return;
@@ -84,7 +89,14 @@ export default function ChatArea() {
 
     setMessages((prevMessages) => [...prevMessages, msg]);
     try {
+      let isItNew = false;
+      if (localStorage.getItem("conversationID") == "") {
+        isItNew = true;
+      }
       const response = await handleNewQuestion(messageVaribale);
+      if (isItNew) {
+        dispatch(set(localStorage.getItem("conversationID") + ""));
+      }
       setMessage("");
 
       const apiResponseMessage = (
@@ -95,6 +107,7 @@ export default function ChatArea() {
       console.error(err);
       <DisplayMessage sender="LLama" value={"i am currently down"} />;
     } finally {
+      setIsLoading(false);
       setIsApiProcessing(false);
     }
 
@@ -117,6 +130,7 @@ export default function ChatArea() {
 
   function handleLogout(): void {
     dispatch(disConnect());
+    dispatch(newConversation());
     localStorage.clear();
   }
 
@@ -138,16 +152,14 @@ export default function ChatArea() {
         isOpen={isSaveChatOpen}
         onClose={() => setIsSaveChatOpen(false)}
       ></SaveChatModal>
-      <div className="chatArea-header">
+      <div className="chat-header">
+        <TabsNav></TabsNav>
         {messages.length > 0 && (
           <div className="saveChatArea" onClick={() => setIsSaveChatOpen(true)}>
-            <SaveIcon style={{ fontSize: "2rem" }}></SaveIcon>
+            <SaveIcon style={{ fontSize: "2rem", color: "white" }}></SaveIcon>
             <button className="saveChat">Save Chat</button>
           </div>
         )}
-        <div className="active-tab">Chat</div>
-        <div className="tab">Files</div>
-        <div className="tab">User</div>
         <div className="chat-icons">
           <div className="mode-icon">
             <IconButton>
@@ -159,17 +171,17 @@ export default function ChatArea() {
           <div className="logindicator">
             <IconButton className="icon">
               {authStatus && (
-                <div className="logContainer">
-                  <div className="logTxt"> Logout</div>
+                <div className="logContainer" onClick={handleLogout}>
                   <LogoutIcon
                     onClick={handleLogout}
                     className="logouticon"
                     color="primary"
                   ></LogoutIcon>
+                  <div className="logTxt"> Logout</div>
                 </div>
               )}
               {!authStatus && (
-                <div className="logContainer">
+                <div className="logContainer" onClick={() => setIsOpen(true)}>
                   <div className="logTxt">Login</div>
                   <LoginIcon
                     onClick={() => setIsOpen(true)}
@@ -184,10 +196,11 @@ export default function ChatArea() {
       </div>
       {messages.length > 0 && <div className="line"></div>}
       <div id="messages" className="msgs">
-        {(isOpen==false && (!messages || messages.length === 0)) && (
-          <div className="wel-p">How can I help you?</div>
+        {isOpen == false && (!messages || messages.length === 0) && (
+          <div className="wel-p"> How can I help you today?</div>
         )}
         {!messages || messages.length === 0 ? null : <>{messages}</>}
+        {isLoading && <LoadingSpinner />}
       </div>
       <div className="btns">
         <div className="input-container">

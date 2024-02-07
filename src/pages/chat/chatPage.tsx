@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./chatPage.css";
-import Sidebar from "../../components/sidebar/sidebar";
+import Sidebar from "../../components/chatPageComponents/sidebar/sidebar";
 import ChatArea from "../../components/chatArea/chatArea";
 
 export default function ChatPage() {
@@ -14,7 +14,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      localStorage.removeItem("conversationID");
+      // localStorage.removeItem("conversationID");
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);

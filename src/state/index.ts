@@ -3,11 +3,14 @@ import conversationSlice from "./conversationState";
 import { TypedUseSelectorHook, useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import authSlice from "./authStatusState";
+import pageSlice from "./pageState";
 
 const store = configureStore({
   reducer: {
     conversationSlice: conversationSlice.reducer,
     authSlice: authSlice.reducer,
+    pageSlice: pageSlice.reducer,
+
   },
 });
 

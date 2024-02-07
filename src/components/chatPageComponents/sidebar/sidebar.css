@@ -99,3 +99,9 @@
     border-radius: 1rem;
     margin-top: 2rem;
 }
+
+
+.userIndicator:hover {
+  background-color: rgb(28, 30, 58, 1);
+
+}

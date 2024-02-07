@@ -4,6 +4,7 @@ import ChatPage from "./pages/chat/chatPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/auth/loginModal";
 import Signup from "./pages/auth/signupModal";
+import FileDrive from "./pages/filesDrive/filesDrive";
 
 function App() {
   // useEffect(() => {
@@ -12,6 +13,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<ChatPage />}></Route>
+
+          <Route path="Files" element={<FileDrive />}></Route>
 
           {/* <Route path="/login" element={<LoginPage></LoginPage>}></Route> */}
 

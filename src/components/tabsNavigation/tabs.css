@@ -1,0 +1,52 @@
+.chatArea-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6rem;
+  height: 5%;
+  height: auto;
+  width: auto;
+  padding: 0.2rem 3rem;
+  margin-top: 0.5rem;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+  margin: 0.3 auto;
+}
+
+.active-tab {
+  position: relative;
+  /* background-color: #524777; */
+  color: white;
+  color: #468ac9;
+  cursor: pointer;
+  padding: 3px 2rem;
+}
+
+.active-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 2px;
+  background-color: #468ac9;
+}
+
+.tab {
+  color: white;
+  cursor: pointer;
+  padding: 3px 2rem;
+}
+
+.tab {
+  color: white;
+  cursor: pointer;
+  padding: 3px 2rem;
+  &:hover {
+   background-color: #468ac9;
+  }
+}

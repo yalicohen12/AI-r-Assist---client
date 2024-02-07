@@ -20,7 +20,7 @@ const DisplayMessage: React.FC<MessageProps> = ({ sender, value }) => {
       <div className="msg-head">
         <IconButton>
           {isUserSender ? (
-            <AccountCircleIcon className="userIcon" color="primary" />
+            <AccountCircleIcon style={{fontSize:"2rem"}}className="userIcon" color="primary" />
           ) : (
             <IconButton>
               <img
