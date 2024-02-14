@@ -101,7 +101,7 @@ export default function LoginModal({ onClose, isOpen }: LoginModalProps) {
                         setName(e.target.value);
                       }}
                       className="input-field"
-                      style={{marginBottom:"1rem"}}
+                      style={{ marginBottom: "1rem" }}
                     />
                   </div>
                   <div className="input-container">
@@ -122,6 +122,7 @@ export default function LoginModal({ onClose, isOpen }: LoginModalProps) {
                       className="btn-connect"
                       type="submit"
                       value={"Login"}
+                      style={{ color: "white" }}
                     />
                   </div>
                 </form>

@@ -5,8 +5,6 @@ import FolderIcon from "@mui/icons-material/Folder";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
-
-
 export default function FileDrive() {
   return (
     <div className="fileDrive-page">
@@ -16,7 +14,9 @@ export default function FileDrive() {
         <div className="depName">R&D</div>
         <div className="sb-search">
           <IconButton>
-            <SearchIcon style={{ color: "white" , marginLeft:"auto" }}></SearchIcon>
+            <SearchIcon
+              style={{ color: "white", marginLeft: "auto" }}
+            ></SearchIcon>
           </IconButton>
           <input placeholder="search for file" className="search-box"></input>
         </div>
@@ -26,17 +26,13 @@ export default function FileDrive() {
           <FolderIcon
             style={{ color: "yellow", fontSize: "3rem" }}
           ></FolderIcon>
-          <div style={{ fontFamily: "Poppins", color: "white" }}>
-            Full-stack
-          </div>
+          <div style={{ fontFamily: "Arial", color: "white" }}>Full-stack</div>
         </div>
         <div className="folder-item">
           <FolderIcon
             style={{ color: "yellow", fontSize: "3rem" }}
           ></FolderIcon>
-          <div style={{ fontFamily: "Poppins", color: "white" }}>
-            Full-stack
-          </div>
+          <div style={{ fontFamily: "Arial", color: "white" }}>Full-stack</div>
         </div>
       </div>
     </div>

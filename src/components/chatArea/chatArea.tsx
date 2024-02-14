@@ -22,6 +22,7 @@ import LoadingSpinner from "../chatPageComponents/loader/loadingSpinner";
 import { newConversation, set } from "../../state/conversationState";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
+import { setMessageID } from "../../state/currentMessageState";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -48,7 +49,12 @@ export default function ChatArea() {
     try {
       const response = await getConversation();
       const newMessages = response.map((msg: any, index: number) => (
-        <DisplayMessage key={index} sender={msg.sender} value={msg.value} />
+        <DisplayMessage
+          key={index}
+          sender={msg.sender}
+          value={msg.value}
+          messageID={0}
+        />
       ));
       setMessages(newMessages);
     } catch (error) {
@@ -87,13 +93,15 @@ export default function ChatArea() {
       notifyLogin();
       return;
     }
-    setIsLoading(true);
+    // setIsLoading(true);
     if (message == "" || message.length < 2) {
       return;
     }
     const messageVaribale = message;
     setMessage("");
-    const msg = <DisplayMessage sender="You" value={messageVaribale} />;
+    const msg = (
+      <DisplayMessage sender="You" value={messageVaribale} messageID={0} />
+    );
     setIsApiProcessing(true);
 
     setMessages((prevMessages) => [...prevMessages, msg]);
@@ -102,19 +110,32 @@ export default function ChatArea() {
       if (localStorage.getItem("conversationID") == "") {
         isItNew = true;
       }
+
+      const currentTimestamp = Date.now() / 1000;
+      dispatch(setMessageID(currentTimestamp));
+      handleScrollDown();
+
+      const apiResponseMessage = (
+        <DisplayMessage
+          sender="LLama"
+          value={"you fail" || "" || "not"}
+          messageID={currentTimestamp}
+        />
+      );
       const response = await handleNewQuestion(messageVaribale);
       if (isItNew) {
         dispatch(set(localStorage.getItem("conversationID") + ""));
       }
       setMessage("");
 
-      const apiResponseMessage = (
-        <DisplayMessage sender="LLama" value={response || "" || "not"} />
-      );
       setMessages((prevMessages) => [...prevMessages, apiResponseMessage]);
     } catch (err) {
       console.error(err);
-      <DisplayMessage sender="LLama" value={"i am currently down"} />;
+      <DisplayMessage
+        sender="LLama"
+        value={"i am currently down"}
+        messageID={0}
+      />;
     } finally {
       setIsLoading(false);
       setIsApiProcessing(false);
