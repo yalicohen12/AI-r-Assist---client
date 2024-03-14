@@ -10,6 +10,7 @@ import { IconButton } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { io, Socket } from "socket.io-client"; // Import Socket type from socket.io-client
 import { useAppDispatch, useAppSelector } from "../../../state";
+import LoadingSpinner from "../loader/loadingSpinner";
 
 interface MessageProps {
   sender: string;
@@ -27,9 +28,11 @@ const DisplayMessage: React.FC<MessageProps> = ({
   );
   const [accumulatedContent, setAccumulatedContent] = useState<string>("");
   const [socket, setSocket] = useState<Socket | null>(null); // Typing socket state
+  const [loading, setIsLoading] = useState(false);
+
+  const [inCodeBlock, setIsOnCodeBlock] = useState(false);
 
   useEffect(() => {
-    console.log("render mesg");
     if (sender === "LLama" && messageID != 0 && messageState === messageID) {
       if (!socket) {
         const newSocket = io("http://localhost:8080", {
@@ -38,6 +41,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
 
         newSocket.on("connect", () => {
           console.log("Connected to socket server is: ", sender, messageID);
+          setIsLoading(true);
         });
 
         newSocket.on("error", (error) => {
@@ -45,6 +49,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
         });
 
         newSocket.on("generated_text", (textChunk) => {
+          setIsLoading(false);
           setAccumulatedContent((prevContent) => prevContent + textChunk);
         });
 
@@ -88,39 +93,64 @@ const DisplayMessage: React.FC<MessageProps> = ({
       </div>
       <div className={isUserSender ? "message-content" : "bot-content"}>
         {accumulatedContent ? (
-          <RenderContent content={accumulatedContent} />
-        ) : null}
-        {value != "you fail" && value}
+          <RenderContent
+            content={accumulatedContent}
+            inCodeBlock={inCodeBlock}
+            setIsOnCodeBlock={setIsOnCodeBlock}
+          />
+        ) : // <div>{accumulatedContent}</div>
+        null}
+        {value != "you fail" && <RenderContent
+            content={value}
+            inCodeBlock={inCodeBlock}
+            setIsOnCodeBlock={setIsOnCodeBlock}
+          />}
+        {loading && <LoadingSpinner></LoadingSpinner>}
       </div>
     </div>
   );
 };
 
-const RenderContent: React.FC<{ content: string }> = ({ content }) => {
-  const isCodeChunk = content.startsWith("```") && content.endsWith("```");
-
-  if (isCodeChunk) {
-    const codeLanguage = content.substring(3, content.indexOf("\n"));
-    const codeContent = content.substring(
-      content.indexOf("\n") + 1,
-      content.lastIndexOf("```")
-    );
-
+const RenderContent: React.FC<{
+  content: string;
+  inCodeBlock: boolean;
+  setIsOnCodeBlock: (is: boolean) => void;
+}> = ({ content, inCodeBlock, setIsOnCodeBlock }) => {
+  if (inCodeBlock) {
+    if (content.includes("```")) {
+      setIsOnCodeBlock(false);
+    }
     return (
-      <SyntaxHighlighter
-        customStyle={{
-          backgroundColor: "#282A3A",
-          padding: "0.5rem",
-          borderRadius: "20px",
-        }}
-        language={codeLanguage || "python"}
-        style={darcula}
-      >
-        {codeContent}
-      </SyntaxHighlighter>
+      <div>{content}</div>
+      // <SyntaxHighlighter
+      //   customStyle={{
+      //     // backgroundColor: "#282A3A",
+      //     padding: "0.1rem",
+      //     borderRadius: "20px",
+      //   }}
+      //   language={"python"}
+      //   style={darcula}
+      // >
+      //   {content}
+      // </SyntaxHighlighter>
+    );
+  } else if (!inCodeBlock && content.includes("```")) {
+    setIsOnCodeBlock(true);
+    return (
+      // <SyntaxHighlighter
+      //   customStyle={{
+      //     backgroundColor: "#282A3A",
+      //     padding: "0.5rem",
+      //     borderRadius: "20px",
+      //   }}
+      //   language={"python"}
+      //   style={darcula}
+      // >
+      //   {content}
+      // </SyntaxHighlighter>
+      <div>{content}</div>
     );
   } else {
-    // Render the content as HTML
     return (
       <div
         dangerouslySetInnerHTML={{

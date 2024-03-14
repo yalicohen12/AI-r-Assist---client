@@ -8,20 +8,17 @@ const LoadingSpinner: React.FC = () => {
   return (
     <div
       style={{
-        marginLeft: "14rem",
+        // marginLeft: "14rem",
         display: "flex",
         flexDirection: "row",
-        gap: "0.3rem",
+        gap:"0.4rem",
+        alignItems:"center",
+        justifyContent:"center"
+        // gap: "0.3rem",
       }}
     >
-      <IconButton>
-        <img
-          src={process.env.PUBLIC_URL + "/img/llama.png"}
-          className="userIcon"
-          alt="Bamza 108"
-        />
-      </IconButton>
-      <CircularProgress style={{ fontSize: "0.5rem", color: "white" }} />
+      <CircularProgress style={{ fontSize: "0.2rem", color: "white" }} />
+      <div style={{ font: "Arial" }}> Proccesing</div>
     </div>
   );
 };

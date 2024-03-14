@@ -36,7 +36,7 @@
   flex: 1;
   border: none;
   border-radius: 5px;
-  resize: none;
+  /* resize: none; */
   overflow-y: scroll;
   font-family: "Poppins", sans-serif;
 }
@@ -60,6 +60,7 @@
   width: 50%;
   /* margin: 0 auto;  */
   margin-top: auto;
+  margin-bottom: auto;
   margin-bottom: 3%;
   background-color: rgb(28, 30, 58, 1);
   /* background-color: rgb(4, 1, 35,1); */
@@ -69,7 +70,8 @@
   display: flex;
   color: white;
   font-family: "Poppins", sans-serif;
-  height: 2rem;
+  height: 2.2rem;
+  position: relative;
 }
 
 .search-box {
@@ -78,6 +80,7 @@
   /* background-color: rgb(4, 1, 35,1); */
   color: white;
   font-family: "Poppins", sans-serif;
+  resize: vertical;
 }
 
 .input-container {
@@ -135,6 +138,7 @@
 .logTxt {
   color: #4f6f52;
   color: #1976d2;
+  color: white;
   font-size: 1rem;
   font-family: "Poppins", sans-serif;
 }
@@ -147,6 +151,11 @@
   background-color: rgb(28, 30, 58, 1);
   padding: 0.35rem;
   border-radius: 1rem;
+  background-image: linear-gradient(135deg, #008aff, #86d472);
+}
+
+.logContainer:hover {
+  background-image: linear-gradient(135deg, #2b4459, #42c521);
 }
 
 .userLogged {
@@ -189,6 +198,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: 0.2rem;
 }
 
 .line {
@@ -216,4 +226,68 @@
   font-size: 1.2rem;
   color: #555;
   padding: 1rem;
+}
+
+.anot-container {
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-right: 2%;
+}
+
+.anot-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+}
+
+.anot-code-card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid rgb(240, 133, 133);
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+
+.anot-code-card:hover {
+  background-color: #9cc7f0;
+  border: none;
+}
+
+.anot-code-card.selected {
+  background-color: #008aff;
+  border: none;
+}
+
+.anote-head {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: large;
+  color: #008aff;
+  /* margin-right: 36%; */
+}
+
+.file-card {
+  padding: 0.2rem 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background-image: linear-gradient(135deg, #008aff, #86d472);
+}
+
+.fileNameTXT {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fileName {
+  color: rgb(243, 224, 224);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
 }

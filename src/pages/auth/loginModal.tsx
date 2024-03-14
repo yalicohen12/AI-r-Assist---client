@@ -74,8 +74,8 @@ export default function LoginModal({ onClose, isOpen }: LoginModalProps) {
 
   return (
     <>
-      <div className="logApp">
-        <div className="modalStyles">
+      <div className="logApp" onClick={onClose}>
+        <div className="modalStyles" onClick={(e) => e.stopPropagation()}>
           <div className="close">
             <IconButton
               onClick={() => {
@@ -122,7 +122,7 @@ export default function LoginModal({ onClose, isOpen }: LoginModalProps) {
                       className="btn-connect"
                       type="submit"
                       value={"Login"}
-                      style={{ color: "white" }}
+                      // style={{ color: "white" }}
                     />
                   </div>
                 </form>

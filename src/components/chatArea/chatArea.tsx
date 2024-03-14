@@ -23,6 +23,11 @@ import { newConversation, set } from "../../state/conversationState";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { setMessageID } from "../../state/currentMessageState";
+import CodeIcon from "@mui/icons-material/Code";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
+import InsightsIcon from "@mui/icons-material/Insights";
+import CloseIcon from "@mui/icons-material/Close";
+import Checkbox from "@mui/material/Checkbox";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -34,6 +39,7 @@ export default function ChatArea() {
   const fetchaedMsgs = useAppSelector(
     (state) => state.conversationSlice.fetchedMessages
   );
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
@@ -42,13 +48,44 @@ export default function ChatArea() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaveChatOpen, setIsSaveChatOpen] = useState(false);
 
+  const [isChecked, setIsChecked] = useState(true);
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(event.target.checked);
+  };
+
+  const [currentFileChat, setCurrentFile] = useState("");
+
+  const [selectedCard, setSelectedCard] = useState<string | null>(null);
+
+  const handleCardClick = (value: string) => {
+    setSelectedCard(value === selectedCard ? null : value);
+  };
+
   const dispatch = useAppDispatch();
+
+  function handleFileRemove() {
+    setUploadedFile(null);
+  }
+
+  //handles new file picked
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    console.log(file);
+    if (file) {
+      setUploadedFile(file);
+      setCurrentFile(file.name);
+    }
+  };
 
   // gets the conversation
   async function fetchConversationMessages() {
     try {
       const response = await getConversation();
-      const newMessages = response.map((msg: any, index: number) => (
+      let currFile = response.fileName || "";
+      console.log(response);
+      setCurrentFile(currFile);
+      const newMessages = response.messages.map((msg: any, index: number) => (
         <DisplayMessage
           key={index}
           sender={msg.sender}
@@ -75,6 +112,7 @@ export default function ChatArea() {
       fetchConversationMessages();
     }
     if (fetchaedMsgs == true || conID == "") {
+      setUploadedFile(null);
       setMessages([]);
     }
   }, [conID, fetchaedMsgs]);
@@ -122,7 +160,12 @@ export default function ChatArea() {
           messageID={currentTimestamp}
         />
       );
-      const response = await handleNewQuestion(messageVaribale);
+      const response = await handleNewQuestion(
+        messageVaribale,
+        selectedCard || "",
+        uploadedFile,
+        (isChecked && currentFileChat) || ""
+      );
       if (isItNew) {
         dispatch(set(localStorage.getItem("conversationID") + ""));
       }
@@ -184,10 +227,17 @@ export default function ChatArea() {
       ></SaveChatModal>
       <div className="chat-header">
         <TabsNav></TabsNav>
-        {messages.length > 0 && (
-          <div className="saveChatArea" onClick={() => setIsSaveChatOpen(true)}>
-            <SaveIcon style={{ fontSize: "2rem", color: "white" }}></SaveIcon>
-            <button className="saveChat">Save Chat</button>
+        {currentFileChat && (
+          <div className="saveChatArea">
+            {/* <div style={{ color: "white" }}> Chat with: </div> */}
+            <div className="fileName"> {currentFileChat}</div>
+            <Checkbox
+              checked={isChecked}
+              onChange={handleCheckboxChange}
+              color="success"
+            />
+            {/* <SaveIcon style={{ fontSize: "2rem", color: "white" }}></SaveIcon>
+            <button className="saveChat">Save Chat</button> */}
           </div>
         )}
         <div className="chat-icons">
@@ -205,7 +255,6 @@ export default function ChatArea() {
                   <LogoutIcon
                     onClick={handleLogout}
                     className="logouticon"
-                    color="primary"
                   ></LogoutIcon>
                   <div className="logTxt"> Logout</div>
                 </div>
@@ -232,22 +281,76 @@ export default function ChatArea() {
         {!messages || messages.length === 0 ? null : <>{messages}</>}
         {isLoading && <LoadingSpinner />}
       </div>
+      {message && (
+        <div className="anot-container">
+          <div className="anot-cards">
+            <div className="anote-head"> Anotate :</div>
+            <div
+              className={`anot-code-card ${
+                selectedCard === "code" ? "selected" : ""
+              }`}
+              onClick={() => handleCardClick("code")}
+            >
+              <CodeIcon />
+              <div>Coding task</div>
+            </div>
+            <div
+              className={`anot-code-card ${
+                selectedCard === "QA" ? "selected" : ""
+              }`}
+              onClick={() => handleCardClick("QA")}
+            >
+              <QuestionAnswerIcon />
+              <div>Q&A</div>
+            </div>
+            <div
+              className={`anot-code-card ${
+                selectedCard === "insights" ? "selected" : ""
+              }`}
+              onClick={() => handleCardClick("insights")}
+            >
+              <InsightsIcon />
+              <div>Insights generation</div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="btns">
+        {/* {uploadedFile && (
+          <div className="input-container">
+            <div className="file-card" style={{ color: "white" }}>
+              <div className="fileNameTXT">{uploadedFile.name}</div>
+              <IconButton
+                onClick={handleFileRemove}
+                style={{ fontSize: "large" }}
+              >
+                <CloseIcon
+                  color="primary"
+                  style={{ fontSize: "large" }}
+                ></CloseIcon>
+              </IconButton>
+            </div>
+          </div>
+        )} */}
         <div className="input-container">
           <label htmlFor="fileInput" className="uploadBTN">
             <div style={{ display: "flex", alignItems: "center" }}>
               <UploadFileIcon
                 className="upload"
-                style={{ fontSize: "26px", color: "white", marginRight: "8px" }}
+                style={{
+                  fontSize: "26px",
+                  color: "white",
+                  marginRight: "8px",
+                }}
               ></UploadFileIcon>
               <div className="dploaddiv"> Upload File</div>
             </div>
             <input
               type="file"
               id="fileInput"
-              accept=".pdf, .doc, .docx"
+              // accept=".pdf, .doc, .docx"
               style={{ display: "none" }}
-              // onChange={handleFileChange}
+              onChange={handleFileChange}
             />
           </label>
         </div>
