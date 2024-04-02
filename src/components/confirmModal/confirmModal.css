@@ -17,11 +17,14 @@
 
 .modal-content {
   position: fixed;
-  top: 42%;
+  /* top: 42%;
+  left: 50%; */
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   /* background-color: rgba(255, 255, 255, 0.13); */
   background-color: white;
+  /* background-color: rgba(255, 255, 255); */
   padding: 2rem;
   z-index: 1000;
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
@@ -32,16 +35,22 @@
 }
 
 .modal-btns {
+  position: absolute;
+  bottom: 1%;
+  right: 1%;
   display: flex;
   flex-direction: row;
-  /* align-items: flex-end; */
-  justify-content: flex-end;
   gap: 0.5rem;
+  margin-bottom: 0.2rem;
 }
 
 .modal-title {
   color: black;
   font-family: "Arial";
+  margin-bottom: 1.5rem;
+  margin-top: 0.5rem;
+  /* float: left; */
+  margin-right: auto;
 }
 
 .confrim-btn {
@@ -60,4 +69,16 @@
   color: white;
   border: none;
   background-color: #dd1717;
+}
+
+.confrim-btn:hover {
+  background-color: #9391ac;
+}
+
+.cancel-btn:hover {
+  background-color: #f55e5e;
+}
+
+.line {
+  margin: 0;
 }

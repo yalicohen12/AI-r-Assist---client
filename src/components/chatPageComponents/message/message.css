@@ -30,7 +30,7 @@
   border-radius: 8px;
   /* background-color: #f0f0f0; */
   max-width: 70%;
-  margin-bottom: 2rem;
+  margin-bottom: 0.2rem;
   font-size: 1.2rem;
   font-family: "Poppins", sans-serif;
   line-height: 2rem;
@@ -53,4 +53,18 @@
 
 .message-content {
   word-wrap: break-word;
+}
+
+.messageIcons {
+  display: flex;
+  flex-direction: row;
+  gap: 0.7rem;
+  /* margin: 0 auto; */
+  margin-bottom: 1rem;
+  /* margin-left: 2%; */
+  align-items: center;
+}
+
+.msgIcon {
+  background-color: #151032;
 }

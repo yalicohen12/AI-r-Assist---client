@@ -7,7 +7,7 @@ interface ConversationState {
 }
 
 const initialState: ConversationState = {
-  conversationID: localStorage.getItem('conversationID') || '',
+  conversationID: localStorage.getItem("conversationID") || "",
   fetchedMessages: false,
 };
 
@@ -20,6 +20,11 @@ const conversationSlice = createSlice({
       state.fetchedMessages = false;
       localStorage.setItem("conversationID", action.payload);
     },
+    onFirstMsg(state ,action: PayloadAction<string>) {
+      state.conversationID = action.payload;
+      localStorage.setItem("conversationID", action.payload);
+      state.fetchedMessages = true;
+    },
     newConversation(state) {
       state.fetchedMessages = true;
       state.conversationID = "";
@@ -29,4 +34,4 @@ const conversationSlice = createSlice({
 });
 
 export default conversationSlice;
-export const { set, newConversation } = conversationSlice.actions;
+export const { set, newConversation, onFirstMsg } = conversationSlice.actions;

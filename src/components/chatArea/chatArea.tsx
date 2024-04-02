@@ -10,10 +10,12 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { Nightlight } from "@mui/icons-material";
 import { handleNewQuestion } from "../../services/apis/conversationsAPI";
 import { getConversation } from "../../services/apis/conversationsAPI";
+import { deleteMsg } from "../../services/apis/conversationsAPI";
 import { useNavigate } from "react-router-dom";
 import LoginModal from "../../pages/auth/loginModal";
 import { useAppDispatch, useAppSelector } from "../../state";
 import { disConnect } from "../../state/authStatusState";
+import { onFirstMsg } from "../../state/conversationState";
 import ColorToggle from "../chatPageComponents/colorMode/colorToggle";
 import SaveChatModal from "../chatPageComponents/saveChatModal/saveChatModal";
 import SaveIcon from "@mui/icons-material/Save";
@@ -28,6 +30,11 @@ import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import InsightsIcon from "@mui/icons-material/Insights";
 import CloseIcon from "@mui/icons-material/Close";
 import Checkbox from "@mui/material/Checkbox";
+import { render } from "@testing-library/react";
+import ModelDropdown from "../chatPageComponents/modelDropdown/modelDropdown";
+import LinearProgress from "@mui/material/LinearProgress";
+import { deleteConversation } from "../../services/apis/conversationsAPI";
+import { JSX } from "react/jsx-runtime";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -35,6 +42,13 @@ export default function ChatArea() {
   const conID = useAppSelector(
     (state) => state.conversationSlice.conversationID
   );
+
+  const modelStatus = useAppSelector((state) => state.modelSlice.model);
+
+  // useEffect(()=> {
+  //   console.log(modelStatus)
+
+  // },[modelStatus])
 
   const fetchaedMsgs = useAppSelector(
     (state) => state.conversationSlice.fetchedMessages
@@ -44,6 +58,7 @@ export default function ChatArea() {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ReactElement[]>([]);
+
   const [isApiProcessing, setIsApiProcessing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isSaveChatOpen, setIsSaveChatOpen] = useState(false);
@@ -55,6 +70,7 @@ export default function ChatArea() {
   };
 
   const [currentFileChat, setCurrentFile] = useState("");
+  // console.log(currentFileChat);
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
@@ -65,6 +81,7 @@ export default function ChatArea() {
   const dispatch = useAppDispatch();
 
   function handleFileRemove() {
+    setCurrentFile("");
     setUploadedFile(null);
   }
 
@@ -81,16 +98,17 @@ export default function ChatArea() {
   // gets the conversation
   async function fetchConversationMessages() {
     try {
+      // console.log("here");
       const response = await getConversation();
       let currFile = response.fileName || "";
-      console.log(response);
+      // console.log(response);
       setCurrentFile(currFile);
       const newMessages = response.messages.map((msg: any, index: number) => (
         <DisplayMessage
           key={index}
           sender={msg.sender}
           value={msg.value}
-          messageID={0}
+          messageID={index}
         />
       ));
       setMessages(newMessages);
@@ -108,12 +126,15 @@ export default function ChatArea() {
   //calls fetch messages when user load conversation
   useEffect(() => {
     // console.log(conID);
-    if (conID) {
+    // console.log("mile1")
+    if (conID && fetchaedMsgs == false) {
+      // console.log("mile2")
       fetchConversationMessages();
     }
-    if (fetchaedMsgs == true || conID == "") {
+    if (conID == "") {
       setUploadedFile(null);
       setMessages([]);
+      setCurrentFile("");
     }
   }, [conID, fetchaedMsgs]);
 
@@ -153,21 +174,34 @@ export default function ChatArea() {
       dispatch(setMessageID(currentTimestamp));
       handleScrollDown();
 
-      const apiResponseMessage = (
-        <DisplayMessage
-          sender="LLama"
-          value={"you fail" || "" || "not"}
-          messageID={currentTimestamp}
-        />
-      );
       const response = await handleNewQuestion(
         messageVaribale,
         selectedCard || "",
-        uploadedFile,
-        (isChecked && currentFileChat) || ""
+        (isChecked && uploadedFile) || null,
+        (isChecked && currentFileChat) || "",
+        modelStatus
       );
+      let apiResponseMessage: JSX.Element;
+      if (response.aiResponse) {
+         apiResponseMessage = (
+          <DisplayMessage
+            sender="LLama"
+            value={response.aiResponse}
+            messageID={currentTimestamp}
+          />
+        );
+      } else {
+         apiResponseMessage = (
+          <DisplayMessage
+            sender="LLama"
+            value={"you fail" || "" || "not"}
+            messageID={currentTimestamp}
+          />
+        );
+      }
       if (isItNew) {
-        dispatch(set(localStorage.getItem("conversationID") + ""));
+        // dispatch(set(localStorage.getItem("conversationID") + ""));
+        dispatch(onFirstMsg(localStorage.getItem("conversationID") + ""));
       }
       setMessage("");
 
@@ -185,7 +219,25 @@ export default function ChatArea() {
     }
 
     setMessage("");
+    if (isChecked && uploadedFile) {
+      setUploadedFile(null);
+    }
   }
+
+  const deleteMessage = (messageID: number) => {
+    try {
+      deleteMsg(messageID, conID);
+      setMessages((prevMessages) =>
+        prevMessages.filter(
+          (msg) =>
+            msg.props.messageID !== messageID &&
+            msg.props.messageID !== messageID - 1
+        )
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   function handleKeyPress(e: React.KeyboardEvent<HTMLTextAreaElement>): void {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -225,21 +277,17 @@ export default function ChatArea() {
         isOpen={isSaveChatOpen}
         onClose={() => setIsSaveChatOpen(false)}
       ></SaveChatModal>
-      <div className="chat-header">
-        <TabsNav></TabsNav>
-        {currentFileChat && (
-          <div className="saveChatArea">
-            {/* <div style={{ color: "white" }}> Chat with: </div> */}
-            <div className="fileName"> {currentFileChat}</div>
-            <Checkbox
-              checked={isChecked}
-              onChange={handleCheckboxChange}
-              color="success"
-            />
-            {/* <SaveIcon style={{ fontSize: "2rem", color: "white" }}></SaveIcon>
-            <button className="saveChat">Save Chat</button> */}
-          </div>
-        )}
+      <div
+        className="chat-header"
+        style={{ display: "flex", alignItems: "center" }}
+      >
+        <div style={{ float: "left", marginTop: "1%", marginLeft: "0.5rem" }}>
+          <ModelDropdown />
+        </div>
+        <div style={{ margin: "0 auto" }}>
+          <TabsNav />
+        </div>
+        <div style={{ marginLeft: "auto" }}></div>{" "}
         <div className="chat-icons">
           <div className="mode-icon">
             <IconButton>
@@ -272,8 +320,33 @@ export default function ChatArea() {
             </IconButton>
           </div>
         </div>
+        {/* {messages.length > 0 && <div className="line"></div>} */}
       </div>
-      {messages.length > 0 && <div className="line"></div>}
+      {authStatus && currentFileChat && (
+        <div className="saveChatArea">
+          {/* <div style={{ color: "white" }}> Chat with: </div> */}
+          <IconButton
+            onClick={handleFileRemove}
+            style={{ marginBottom: "auto" }}
+          >
+            <CloseIcon
+              style={{
+                marginBottom: "auto",
+                color: "black",
+                marginRight: "0.1rem",
+              }}
+            ></CloseIcon>
+          </IconButton>
+          <div className="fileName"> {currentFileChat}</div>
+          <Checkbox
+            checked={isChecked}
+            onChange={handleCheckboxChange}
+            color="success"
+          />
+          {/* <SaveIcon style={{ fontSize: "2rem", color: "white" }}></SaveIcon>
+            <button className="saveChat">Save Chat</button> */}
+        </div>
+      )}
       <div id="messages" className="msgs">
         {isOpen == false && (!messages || messages.length === 0) && (
           <div className="wel-p"> How can I help you today?</div>
@@ -316,22 +389,6 @@ export default function ChatArea() {
         </div>
       )}
       <div className="btns">
-        {/* {uploadedFile && (
-          <div className="input-container">
-            <div className="file-card" style={{ color: "white" }}>
-              <div className="fileNameTXT">{uploadedFile.name}</div>
-              <IconButton
-                onClick={handleFileRemove}
-                style={{ fontSize: "large" }}
-              >
-                <CloseIcon
-                  color="primary"
-                  style={{ fontSize: "large" }}
-                ></CloseIcon>
-              </IconButton>
-            </div>
-          </div>
-        )} */}
         <div className="input-container">
           <label htmlFor="fileInput" className="uploadBTN">
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -343,7 +400,12 @@ export default function ChatArea() {
                   marginRight: "8px",
                 }}
               ></UploadFileIcon>
-              <div className="dploaddiv"> Upload File</div>
+              <div className="dploaddiv">
+                {" "}
+                {uploadedFile || currentFileChat
+                  ? "Change File"
+                  : "Upload File"}
+              </div>
             </div>
             <input
               type="file"

@@ -8,6 +8,10 @@ import { IconButton } from "@mui/material";
 import { deleteConversation } from "../../../services/apis/conversationsAPI";
 import { toast } from "react-toastify";
 import ConfirmModal from "../../confirmModal/confirmModal";
+// import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@mui/material/TextField";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface ConversationItemProps {
   title: string;
@@ -26,14 +30,12 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     (state) => state.conversationSlice.conversationID
   );
   const dispatch = useAppDispatch();
-  function handleConversationClicked(): void {
-    localStorage.setItem("conversationID", conversationID);
-    dispatch(set(conversationID));
-  }
-
-  //modal handle
+  const [editableTitle, setEditableTitle] = useState(title);
+  const [isEditing, setIsEditing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const deleteText = " want to delete this conversation? ";
+
+  const [fromDelete, setFromDelete] = useState(false);
 
   const notify = () => {
     toast.success("conversation deleted", {
@@ -42,14 +44,44 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     });
   };
 
-  function handleDeleteConversarion(event: React.MouseEvent) {
+  function handleConversationClicked(): void {
+    // console.log("clicked");
+    if (!fromDelete) {
+      // console.log("clicked2");
+      localStorage.setItem("conversationID", conversationID);
+      dispatch(set(conversationID));
+    }
+    setFromDelete(false);
+  }
+
+  function handleEditClick() {
+    setIsEditing(true);
+  }
+
+  function handleSaveEdit() {
+    // Save the edited title
+    // Call an API to update the conversation title
+    setIsEditing(false);
+  }
+
+  function handleCancelEdit() {
+    // Cancel the edit and revert back to original title
+    setEditableTitle(title);
+    setIsEditing(false);
+  }
+
+  function handleDelete(event: React.MouseEvent) {
+    console.log("dd");
+    setFromDelete(true);
+    event.stopPropagation();
+    setIsOpen(true);
+  }
+
+  function handleDeleteConversarion() {
     try {
-      event.stopPropagation();
-      deleteConversation(conversationID);
+      // event.stopPropagation();
       deleteConversationCall(conversationID);
-      if (conversationID == localStorage.getItem("conversationID")) {
-        dispatch(newConversation());
-      }
+      deleteConversation(conversationID);
       notify();
     } catch {
       console.log("fail");
@@ -58,41 +90,75 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
 
   return (
     <div
+      onClick={handleConversationClicked}
       className={`conversation-container ${
         conID === conversationID ? "special-style" : ""
       }`}
-      onClick={handleConversationClicked}
     >
-      {/* <ConfirmModal
+      <ConfirmModal
         isOpen={isOpen}
-        action={()=> handleDeleteConversarion()}
+        action={() => handleDeleteConversarion()}
         onClose={() => setIsOpen(false)}
         text={deleteText}
-      ></ConfirmModal> */}
-      <div>
-        <p className="con-title">{title}</p>
+      ></ConfirmModal>
+      <div className="con-title-container">
+        {isEditing ? (
+          <TextField
+            value={editableTitle}
+            onChange={(e) => setEditableTitle(e.target.value)}
+            onBlur={handleSaveEdit}
+            autoFocus
+            variant="outlined"
+            size="small"
+            fullWidth
+            InputProps={{
+              style: { color: "white" },
+            }}
+          />
+        ) : (
+          <div className="con-title">{editableTitle}</div>
+        )}
       </div>
-      <IconButton
-        style={{ marginLeft: "auto", backgroundColor: "rgb(4, 1, 20)" }}
-      >
-        <EditIcon
-          color="primary"
-          style={{ marginLeft: "auto", fontSize: "1.1rem" }}
-        ></EditIcon>
-      </IconButton>
+      <div className="casef">
+        {isEditing ? (
+          <>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.7rem",
+                color: "transparent",
+              }}
+            >
+              <IconButton
+                className="confirmIcon"
+                onClick={handleSaveEdit}
+                style={{ height: "1rem" }}
+              >
+                <CheckIcon color="primary" />
+              </IconButton>
+              <IconButton onClick={handleCancelEdit} style={{ height: "1rem" }}>
+                <CloseIcon color="error" />
+              </IconButton>
+            </div>
+          </>
+        ) : (
+          <EditIcon
+            color="primary"
+            style={{ marginLeft: "auto", fontSize: "1.1rem" }}
+            className="editIcon"
+            onClick={handleEditClick}
+          ></EditIcon>
+        )}
+      </div>
 
-      <IconButton
-        className="delete-icon-btn"
-        style={{ backgroundColor: "rgb(4, 1, 20)" }}
-        onClick={()=> handleDeleteConversarion}
-
-      >
+      <div className="casefDelete" onClick={(event) => handleDelete(event)}>
         <DeleteIcon
           style={{ fontSize: "1.1rem" }}
           className="deleteIcon"
-          onClick={handleDeleteConversarion}
+          // onClick={handleDelete}
         ></DeleteIcon>
-      </IconButton>
+      </div>
     </div>
   );
 };

@@ -35,8 +35,7 @@ export default function Sidebar() {
     (state) => state.conversationSlice.conversationID
   );
 
-
-  useEffect(()=> {
+  useEffect(() => {
     const fetchConversations = async () => {
       if (localStorage.getItem("userID")) {
         try {
@@ -47,8 +46,7 @@ export default function Sidebar() {
         }
       }
     };
-
-  },[conID])
+  }, [conID]);
 
   //fetches conversation
   useEffect(() => {
@@ -83,13 +81,17 @@ export default function Sidebar() {
 
   //delets conversation
   function deleteConversationCall(conID: string) {
+    console.log("trying to delete it in sidebar");
     setConversations((prevConversations) =>
       prevConversations.filter((c) => c.conversationID !== conID)
     );
+    console.log("conID is: ", conID);
+    console.log("local is: ", localStorage.getItem("conversationID"));
 
     if (localStorage.getItem("conversationID") === conID) {
+      console.log("in critucal moment");
       dispatch(newConversation());
-      localStorage.setItem("conversationID", "");
+      // localStorage.setItem("conversationID", "");
     }
   }
   // clear comversations when logout
@@ -108,73 +110,71 @@ export default function Sidebar() {
     return null;
   }
   return (
-      <div className="sidebar-container">
-        <div className="sb-head">
+    <div className="sidebar-container">
+      <div className="sb-head">
+        <IconButton>
+          <img
+            src={process.env.PUBLIC_URL + "/img/Bamza_108.png"}
+            className="img108"
+            alt="Bamza 108"
+          />
+        </IconButton>
+        <div className="pro-name"> AI-r Assist</div>
+      </div>
+      <div className="sb-new" onClick={handlenewConversation}>
+        <div>New Chat</div>
+        <IconButton>
+          <AddIcon></AddIcon>
+        </IconButton>
+      </div>
+      {authStatus && conversations.length > 0 && (
+        <div className="sb-search">
           <IconButton>
-            <img
-              src={process.env.PUBLIC_URL + "/img/Bamza_108.png"}
-              className="img108"
-              alt="Bamza 108"
+            <SearchIcon style={{ color: "white" }}></SearchIcon>
+          </IconButton>
+          <input
+            placeholder="search"
+            className="search-box"
+            onChange={(e) => setSearchTerm(e.target.value)}
+          ></input>
+        </div>
+      )}
+      <div className="sb-conversations" style={{ overflowY: "auto" }}>
+        {filteredConversations.map((conversation) => {
+          return (
+            <ConversationItem
+              key={conversation.conversationID}
+              title={conversation.title}
+              timeStamp={conversation.timestamp.split("T")[0]}
+              conversationID={conversation.conversationID}
+              deleteConversationCall={deleteConversationCall}
             />
-          </IconButton>
-          <div className="pro-name"> AI-r Assist</div>
-        </div>
-        <div className="sb-new" onClick={handlenewConversation}>
-          <div>New Chat</div>
-          <IconButton>
-            <AddIcon></AddIcon>
-          </IconButton>
-        </div>
-        {authStatus && conversations.length > 0 && (
-          <div className="sb-search">
-            <IconButton>
-              <SearchIcon style={{ color: "white" }}></SearchIcon>
-            </IconButton>
-            <input
-              placeholder="search"
-              className="search-box"
-              onChange={(e) => setSearchTerm(e.target.value)}
-            ></input>
-          </div>
-        )}
-        <div className="sb-conversations">
-          {filteredConversations.map((conversation) => {
-            return (
-              <ConversationItem
-                key={conversation.conversationID}
-                title={conversation.title}
-                timeStamp={conversation.timestamp.split("T")[0]}
-                conversationID={conversation.conversationID}
-                deleteConversationCall={deleteConversationCall}
-              />
-            );
-          })}
-        </div>
+          );
+        })}
+      </div>
 
+      <div
+        className="userIndicator"
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          border: "1px solid rgb(28, 30, 58, 1)",
+          borderRadius: "1rem",
+          margin: "0 1rem",
+          marginBottom: "3rem",
+        }}
+      >
+        <IconButton>
+          <PersonIcon style={{ color: "white", fontSize: "3rem" }}></PersonIcon>
+        </IconButton>
         <div
-          className="userIndicator"
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            border: "1px solid rgb(28, 30, 58, 1)",
-            borderRadius: "1rem",
-            margin: "0 1rem",
-            marginBottom: "3rem",
-          }}
+          style={{ color: "white", fontFamily: "Arial", fontSize: "1.3rem" }}
         >
-          <IconButton>
-            <PersonIcon
-              style={{ color: "white", fontSize: "3rem" }}
-            ></PersonIcon>
-          </IconButton>
-          <div
-            style={{ color: "white", fontFamily: "Arial", fontSize: "1.3rem" }}
-          >
-            {localStorage.getItem("userName") || "Guest"}
-          </div>
+          {localStorage.getItem("userName") || "Guest"}
         </div>
       </div>
+    </div>
   );
 }

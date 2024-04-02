@@ -57,8 +57,8 @@ export async function createConversation(
   prompt: string,
   anot: string,
   file: File | null,
-  fileName: string
-
+  fileName: string,
+  modelStatus: string
 ) {
   const userID = localStorage.getItem("userID");
   if (file) {
@@ -69,6 +69,8 @@ export async function createConversation(
       formData.append("prompt", prompt);
       formData.append("anotation", anot);
       formData.append("file", file);
+      formData.append("fileName", fileName);
+      formData.append("modelStatus", modelStatus);
 
       const conversation = await axios.post(
         "http://localhost:4000/createConversation",
@@ -94,13 +96,15 @@ export async function createConversation(
         prompt: prompt,
         anotation: anot,
         file: file,
+        fileName: fileName,
+        modelStatus: modelStatus,
       }
     );
     localStorage.setItem("conversationID", conversation.data.conversationID);
     // const dispatch = useDispatch();
     // dispatch(newConversation(conversation.data.conversationID))
     console.log(conversation.data);
-    return conversation.data.aiResponse as string;
+    return conversation.data;
   }
 }
 
@@ -108,7 +112,8 @@ export async function uploadToConversation(
   prompt: string,
   anot: string,
   file: File | null,
-  fileName: string
+  fileName: string,
+  modelStatus: string
 ) {
   const userID = localStorage.getItem("userID");
   // const conversationID = store.getState().conversationSlice.conversationID;
@@ -122,6 +127,8 @@ export async function uploadToConversation(
       formData.append("anotation", anot);
       formData.append("file", file);
       formData.append("conversationID", conversationID || "");
+      formData.append("fileName", fileName);
+      formData.append("modelStatus", modelStatus);
 
       const conversation = await axios.post(
         "http://localhost:4000/postToConversation",
@@ -132,7 +139,7 @@ export async function uploadToConversation(
           },
         }
       );
-      return conversation.data as string;
+      return conversation.data;
     } catch (error) {
       console.error("API request failed (try to send file):", error);
       throw error;
@@ -146,6 +153,8 @@ export async function uploadToConversation(
           conversationID: conversationID,
           prompt: prompt,
           anotation: anot,
+          fileName: fileName,
+          modelStatus: modelStatus,
           // file: file,
         }
       );
@@ -162,25 +171,74 @@ export async function handleNewQuestion(
   prompt: string,
   anot: string,
   file: File | null,
-  fileName: string
+  fileName: string,
+  modelStatus: string
 ) {
   if (localStorage.getItem("conversationID")) {
-    const response = await uploadToConversation(prompt, anot, file,fileName);
+    const response = await uploadToConversation(
+      prompt,
+      anot,
+      file,
+      fileName,
+      modelStatus
+    );
     return response;
   } else {
-    const response = await createConversation(prompt, anot, file,fileName);
+    const response = await createConversation(
+      prompt,
+      anot,
+      file,
+      fileName,
+      modelStatus
+    );
     return response;
   }
 }
 
 export async function deleteConversation(conID: string) {
+  console.log("deleting in api");
   if (localStorage.getItem("userID")) {
     try {
       axios.post("http://localhost:4000/deleteConversation", {
         userID: localStorage.getItem("userID"),
         conversationID: conID,
       });
+      // localStorage.setItem("conversationID", "");
     } catch {}
+  }
+}
+
+export async function regenerateResponse(index: number, modelStatus: string) {
+  if (
+    localStorage.getItem("userID") &&
+    localStorage.getItem("conversationID")
+  ) {
+    try {
+      const res = await axios.post("http://localhost:4000/regenerateResponse", {
+        userID: localStorage.getItem("userID"),
+        conversationID: localStorage.getItem("conversationID"),
+        index: index,
+        modelStatus: modelStatus,
+      });
+      return res.data;
+    } catch (err) {
+      console.log(err);
+      return 0;
+    }
+  }
+}
+
+export async function deleteMsg(index: number, conID: string) {
+  if (localStorage.getItem("userID")) {
+    try {
+      axios.post("http://localhost:4000/deleteMessage", {
+        userID: localStorage.getItem("userID"),
+        conversationID: conID,
+        index: index,
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 }
 

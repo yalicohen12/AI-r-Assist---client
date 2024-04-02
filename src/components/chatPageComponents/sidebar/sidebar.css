@@ -54,6 +54,10 @@
   font-family: "Poppins", sans-serif;
 }
 
+.sb-new:hover {
+  background-color: #7368f3;
+}
+
 .img108 {
   width: 5rem;
   height: 5rem;
@@ -88,20 +92,22 @@
 }
 
 .container-logout {
-    margin-left: auto;
-    margin-right: auto;
-    display: inline-flex;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-    background-color: #5a4bff;
-    padding: 0.3rem;
-    border-radius: 1rem;
-    margin-top: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: inline-flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  background-color: #5a4bff;
+  padding: 0.3rem;
+  border-radius: 1rem;
+  margin-top: 2rem;
 }
-
 
 .userIndicator:hover {
   background-color: rgb(28, 30, 58, 1);
+}
 
+.sb-conversations::-webkit-scrollbar {
+  width: 0; /* Set the width of the scrollbar to 0 */
 }

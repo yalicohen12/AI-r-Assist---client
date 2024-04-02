@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import authSlice from "./authStatusState";
 import pageSlice from "./pageState";
 import currentMessageSlice from "./currentMessageState";
+import modelSlice from "./modelState";
+
 
 const store = configureStore({
   reducer: {
@@ -12,6 +14,7 @@ const store = configureStore({
     authSlice: authSlice.reducer,
     pageSlice: pageSlice.reducer,
     currentMessageSlice: currentMessageSlice.reducer,
+    modelSlice:modelSlice.reducer
   },
 });
 

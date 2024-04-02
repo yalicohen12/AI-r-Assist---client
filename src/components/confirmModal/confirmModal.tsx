@@ -32,6 +32,7 @@ export default function ConfirmModal({
           </IconButton>
         </div>
         <div className="modal-title">Are you sure you want to {text}</div>
+        {/* <div className="line"></div> */}
         <div className="modal-btns">
           <button className="confrim-btn" onClick={action}>OK</button>
           <button className="cancel-btn" onClick={onClose}>Cancel</button>
