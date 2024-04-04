@@ -15,6 +15,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import ConfirmModal from "../../confirmModal/confirmModal";
 import { text } from "stream/consumers";
 import LoginModal from "../../../pages/auth/loginModal";
+import { stat } from "fs";
 
 interface ConversationProps {
   title: string;
@@ -35,9 +36,14 @@ export default function Sidebar() {
     (state) => state.conversationSlice.conversationID
   );
 
+  const fetchedMessages = useAppSelector(
+    (state) => state.conversationSlice.fetchedMessages
+  );
+
   useEffect(() => {
     const fetchConversations = async () => {
-      if (localStorage.getItem("userID")) {
+      if (localStorage.getItem("userID") && fetchedMessages && conID) {
+        console.log("regeting convs")
         try {
           const conversationsHistory = await getConversations();
           setConversations(conversationsHistory);
@@ -46,6 +52,7 @@ export default function Sidebar() {
         }
       }
     };
+    fetchConversations();
   }, [conID]);
 
   //fetches conversation
@@ -163,14 +170,15 @@ export default function Sidebar() {
           border: "1px solid rgb(28, 30, 58, 1)",
           borderRadius: "1rem",
           margin: "0 1rem",
-          marginBottom: "3rem",
+          marginBottom: "1rem",
+          cursor: "pointer",
         }}
       >
         <IconButton>
-          <PersonIcon style={{ color: "white", fontSize: "3rem" }}></PersonIcon>
+          <PersonIcon style={{ color: "white", fontSize: "2rem" }}></PersonIcon>
         </IconButton>
         <div
-          style={{ color: "white", fontFamily: "Arial", fontSize: "1.3rem" }}
+          style={{ color: "white", fontFamily: "Arial", fontSize: "1.4rem" }}
         >
           {localStorage.getItem("userName") || "Guest"}
         </div>

@@ -1,7 +1,7 @@
 // ChatArea component
 import React, { useState, useEffect, ReactElement, useRef } from "react";
 import "./chatArea.css";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import DisplayMessage from "../chatPageComponents/message/message";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -45,11 +45,6 @@ export default function ChatArea() {
 
   const modelStatus = useAppSelector((state) => state.modelSlice.model);
 
-  // useEffect(()=> {
-  //   console.log(modelStatus)
-
-  // },[modelStatus])
-
   const fetchaedMsgs = useAppSelector(
     (state) => state.conversationSlice.fetchedMessages
   );
@@ -80,6 +75,13 @@ export default function ChatArea() {
 
   const dispatch = useAppDispatch();
 
+  const notifyFileOverflow = () => {
+    toast.error("File is to long", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000,
+    });
+  };
+
   function handleFileRemove() {
     setCurrentFile("");
     setUploadedFile(null);
@@ -90,8 +92,33 @@ export default function ChatArea() {
     const file = event.target.files?.[0];
     console.log(file);
     if (file) {
-      setUploadedFile(file);
-      setCurrentFile(file.name);
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        if (event.target) {
+          // Check if event.target is not null
+          const text = event.target.result as string;
+          const wordCount = text.split(/\s+/).length;
+
+          if (wordCount <= 1200) {
+            console.log(wordCount);
+            setUploadedFile(file);
+            setCurrentFile(file.name);
+          } else {
+            console.error("File text exceeds 1200 words.");
+            notifyFileOverflow();
+          }
+        } else {
+          console.error("Event target is null.");
+        }
+      };
+
+      reader.onerror = () => {
+        console.error("Error reading file.");
+        // Optionally, you can also show an error message to the user
+      };
+
+      reader.readAsText(file); // Read the file data as text
     }
   };
 
@@ -158,12 +185,18 @@ export default function ChatArea() {
     }
     const messageVaribale = message;
     setMessage("");
+
     const msg = (
       <DisplayMessage sender="You" value={messageVaribale} messageID={0} />
     );
     setIsApiProcessing(true);
 
     setMessages((prevMessages) => [...prevMessages, msg]);
+
+    if (modelStatus === "online") {
+      setIsLoading(true);
+    }
+
     try {
       let isItNew = false;
       if (localStorage.getItem("conversationID") == "") {
@@ -181,9 +214,10 @@ export default function ChatArea() {
         (isChecked && currentFileChat) || "",
         modelStatus
       );
+
       let apiResponseMessage: JSX.Element;
       if (response.aiResponse) {
-         apiResponseMessage = (
+        apiResponseMessage = (
           <DisplayMessage
             sender="LLama"
             value={response.aiResponse}
@@ -191,7 +225,7 @@ export default function ChatArea() {
           />
         );
       } else {
-         apiResponseMessage = (
+        apiResponseMessage = (
           <DisplayMessage
             sender="LLama"
             value={"you fail" || "" || "not"}
@@ -200,6 +234,7 @@ export default function ChatArea() {
         );
       }
       if (isItNew) {
+        console.log("first MSG detcet")
         // dispatch(set(localStorage.getItem("conversationID") + ""));
         dispatch(onFirstMsg(localStorage.getItem("conversationID") + ""));
       }
@@ -320,39 +355,18 @@ export default function ChatArea() {
             </IconButton>
           </div>
         </div>
-        {/* {messages.length > 0 && <div className="line"></div>} */}
       </div>
-      {authStatus && currentFileChat && (
-        <div className="saveChatArea">
-          {/* <div style={{ color: "white" }}> Chat with: </div> */}
-          <IconButton
-            onClick={handleFileRemove}
-            style={{ marginBottom: "auto" }}
-          >
-            <CloseIcon
-              style={{
-                marginBottom: "auto",
-                color: "black",
-                marginRight: "0.1rem",
-              }}
-            ></CloseIcon>
-          </IconButton>
-          <div className="fileName"> {currentFileChat}</div>
-          <Checkbox
-            checked={isChecked}
-            onChange={handleCheckboxChange}
-            color="success"
-          />
-          {/* <SaveIcon style={{ fontSize: "2rem", color: "white" }}></SaveIcon>
-            <button className="saveChat">Save Chat</button> */}
-        </div>
-      )}
+
       <div id="messages" className="msgs">
         {isOpen == false && (!messages || messages.length === 0) && (
           <div className="wel-p"> How can I help you today?</div>
         )}
         {!messages || messages.length === 0 ? null : <>{messages}</>}
-        {isLoading && <LoadingSpinner />}
+        {isLoading && (
+          <div style={{ position: "absolute", left: "25%", bottom: "13%" }}>
+            <LoadingSpinner></LoadingSpinner>
+          </div>
+        )}
       </div>
       {message && (
         <div className="anot-container">
@@ -389,48 +403,72 @@ export default function ChatArea() {
         </div>
       )}
       <div className="btns">
-        <div className="input-container">
-          <label htmlFor="fileInput" className="uploadBTN">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <UploadFileIcon
-                className="upload"
+        {authStatus && currentFileChat && (
+          <div className="saveChatArea">
+            <div className="fileName"> {currentFileChat}</div>
+            <Tooltip title={isChecked ? "Cancel File usage" : "Use File"} arrow>
+              <Checkbox
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                color="success"
+              />
+            </Tooltip>
+            <IconButton onClick={handleFileRemove}>
+              <CloseIcon
                 style={{
-                  fontSize: "26px",
-                  color: "white",
-                  marginRight: "8px",
+                  marginBottom: "auto",
+                  color: "black",
+                  fontSize: "1.5rem",
                 }}
-              ></UploadFileIcon>
-              <div className="dploaddiv">
-                {" "}
-                {uploadedFile || currentFileChat
-                  ? "Change File"
-                  : "Upload File"}
-              </div>
-            </div>
-            <input
-              type="file"
-              id="fileInput"
-              // accept=".pdf, .doc, .docx"
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
-          </label>
-        </div>
+              ></CloseIcon>
+            </IconButton>
+          </div>
+        )}
+        {/* <div className="input-container"></div> */}
         <div className="text-input-area">
           <textarea
-            placeholder="Type message"
+            placeholder="Type a message"
             className="search-box"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
             disabled={isApiProcessing}
           />
-          <IconButton
-            disabled={isApiProcessing}
-            onClick={() => handleSendMessage()}
-          >
-            <SendIcon style={{ color: "white" }} />
-          </IconButton>
+          <label htmlFor="fileInput">
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Tooltip
+                title={
+                  uploadedFile || currentFileChat
+                    ? "Change File"
+                    : "Upload File"
+                }
+                arrow
+              >
+                <UploadFileIcon
+                  // className="upload"
+                  style={{
+                    fontSize: "2rem",
+                    color: "white",
+                  }}
+                ></UploadFileIcon>
+              </Tooltip>
+            </div>
+            <input
+              type="file"
+              id="fileInput"
+              accept=".txt, .doc, .docx, .py, .js"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+          </label>
+          <Tooltip title="send" arrow>
+            <IconButton
+              disabled={isApiProcessing}
+              onClick={() => handleSendMessage()}
+            >
+              <SendIcon style={{ color: "white" }} />
+            </IconButton>
+          </Tooltip>
         </div>
       </div>
     </div>

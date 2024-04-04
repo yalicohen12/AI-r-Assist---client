@@ -53,7 +53,7 @@ export default function LoginModal({ onClose, isOpen }: LoginModalProps) {
     }
   };
   const notify = () => {
-    toast.success("Welcome!", {
+    toast.success("Welcome back!", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000,
     });

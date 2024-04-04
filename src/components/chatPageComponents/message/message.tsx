@@ -21,12 +21,14 @@ interface MessageProps {
   sender: string;
   value: string;
   messageID: number;
+  onlyLoader?: boolean;
 }
 
 const DisplayMessage: React.FC<MessageProps> = ({
   sender,
   value,
   messageID,
+  onlyLoader = false,
 }) => {
   const messageState = useAppSelector(
     (state) => state.currentMessageSlice.messageID
@@ -75,7 +77,8 @@ const DisplayMessage: React.FC<MessageProps> = ({
       sender === "LLama" &&
       messageID != 0 &&
       messageState === messageID &&
-      value === "you fail"
+      value === "you fail" &&
+      onlyLoader === false
     ) {
       if (!socket) {
         getMsg();
@@ -152,7 +155,8 @@ const DisplayMessage: React.FC<MessageProps> = ({
   function DeleteMessage() {}
 
   async function handleRestartClick() {
-    const regenRes = await regenerateResponse(messageID,modelStatus);
+    setIsLoading(true)
+    const regenRes = await regenerateResponse(messageID, modelStatus);
     if (!regenRes.aiResponse) {
       setAccumulatedContent("");
       // setValueState("");
@@ -161,6 +165,15 @@ const DisplayMessage: React.FC<MessageProps> = ({
     } else {
       setAccumulatedContent(regenRes.aiResponse);
     }
+    setIsLoading(false)
+  }
+
+  if (onlyLoader) {
+    return (
+      <div className="message-container">
+        <LoadingSpinner></LoadingSpinner>
+      </div>
+    );
   }
 
   return (

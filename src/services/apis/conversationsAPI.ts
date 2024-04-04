@@ -261,3 +261,20 @@ export async function saveConversation(
     }
   }
 }
+
+
+export async function renameConversation(conversationID:string , newName:string) {
+  if (localStorage.getItem("userID")) {
+    try {
+      await axios.post("http://localhost:4000/renameConversation", {
+        userID: localStorage.getItem("userID"),
+        conversationID: conversationID,
+        newName:newName
+      });
+      return "File saved";
+    } catch {
+      return "error in proccess";
+    }
+  }
+  
+}

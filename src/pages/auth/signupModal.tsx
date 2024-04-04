@@ -35,7 +35,7 @@ export default function SignupModal({
   }, []);
 
   const notify = () => {
-    toast.success("Welcome Firstly!", {
+    toast.success("Welcome !", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 5000,
     });

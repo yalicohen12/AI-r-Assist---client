@@ -12,6 +12,7 @@ import ConfirmModal from "../../confirmModal/confirmModal";
 import TextField from "@mui/material/TextField";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import { renameConversation } from "../../../services/apis/conversationsAPI";
 
 interface ConversationItemProps {
   title: string;
@@ -30,6 +31,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     (state) => state.conversationSlice.conversationID
   );
   const dispatch = useAppDispatch();
+  const [originalTitle, setOriginalTitle] = useState(title);
   const [editableTitle, setEditableTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -54,19 +56,23 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     setFromDelete(false);
   }
 
-  function handleEditClick() {
+  function handleEditClick(event: React.MouseEvent) {
+    event.stopPropagation();
     setIsEditing(true);
   }
 
   function handleSaveEdit() {
     // Save the edited title
     // Call an API to update the conversation title
+    renameConversation(conversationID, editableTitle);
+    setOriginalTitle(editableTitle);
+
     setIsEditing(false);
   }
 
   function handleCancelEdit() {
     // Cancel the edit and revert back to original title
-    setEditableTitle(title);
+    setEditableTitle(originalTitle);
     setIsEditing(false);
   }
 
@@ -106,7 +112,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           <TextField
             value={editableTitle}
             onChange={(e) => setEditableTitle(e.target.value)}
-            onBlur={handleSaveEdit}
+            // onBlur={handleSaveEdit}
             autoFocus
             variant="outlined"
             size="small"
@@ -125,20 +131,16 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
             <div
               style={{
                 display: "flex",
-                flexDirection: "column",
+                // flexDirection: "column",
                 gap: "0.7rem",
                 color: "transparent",
               }}
             >
-              <IconButton
-                className="confirmIcon"
-                onClick={handleSaveEdit}
-                style={{ height: "1rem" }}
-              >
-                <CheckIcon color="primary" />
+              <IconButton className="confirmIcon" onClick={handleSaveEdit}>
+                <CheckIcon color="primary" style={{ fontSize: "1rem" }} />
               </IconButton>
-              <IconButton onClick={handleCancelEdit} style={{ height: "1rem" }}>
-                <CloseIcon color="error" />
+              <IconButton onClick={handleCancelEdit}>
+                <CloseIcon color="error" style={{ fontSize: "1rem" }} />
               </IconButton>
             </div>
           </>
@@ -147,7 +149,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
             color="primary"
             style={{ marginLeft: "auto", fontSize: "1.1rem" }}
             className="editIcon"
-            onClick={handleEditClick}
+            onClick={(event) => handleEditClick(event)}
           ></EditIcon>
         )}
       </div>
