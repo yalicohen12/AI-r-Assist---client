@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/auth/loginModal";
 import Signup from "./pages/auth/signupModal";
 import FileDrive from "./pages/filesDrive/filesDrive";
+import { CSSTransition } from "react-transition-group";
 
 function App() {
   // useEffect(() => {
@@ -12,9 +13,23 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ChatPage />}></Route>
+          <Route
+            path="/"
+            element={
+              <CSSTransition classNames="fade" timeout={600}>
+                <ChatPage />
+              </CSSTransition>
+            }
+          ></Route>
 
-          <Route path="Files" element={<FileDrive />}></Route>
+          <Route
+            path="/Files"
+            element={
+              <CSSTransition classNames="fade" timeout={600}>
+                <FileDrive />
+              </CSSTransition>
+            }
+          ></Route>
 
           {/* <Route path="/login" element={<LoginPage></LoginPage>}></Route> */}
 

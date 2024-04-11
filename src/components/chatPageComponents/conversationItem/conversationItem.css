@@ -98,6 +98,15 @@
   background-color: rgb(28, 29, 95);
 }
 
+.casef2 {
+  background-color: rgb(4, 1, 20);
+  /* padding: 0.2rem; */
+  border-radius: 0.5rem;
+}
+.casef2:hover {
+  background-color: rgb(28, 29, 95);
+}
+
 .casef {
   margin-left: auto;
   background-color: rgb(4, 1, 20);
@@ -117,3 +126,6 @@
 }
 
 
+.saveIcon {
+  color: green;
+}

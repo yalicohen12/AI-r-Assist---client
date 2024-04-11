@@ -1,38 +1,157 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TabsNav from "../../components/tabsNavigation/tabs";
 import "./filesDrive.css";
 import FolderIcon from "@mui/icons-material/Folder";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useAppDispatch, useAppSelector } from "../../state";
+import { setFile } from "../../state/fileState";
+
+import {
+  FileCard,
+  ExtFile,
+  FilesUiProvider,
+  FileMosaic,
+} from "@files-ui/react";
+import { deleteFile, getFiles } from "../../services/apis/filesAPI";
+import ConfirmModal from "../../components/confirmModal/confirmModal";
+import { newConversation } from "../../state/conversationState";
+import { useNavigate } from "react-router-dom";
+import { setPage } from "../../state/pageState";
+import { Fileobj } from "../../types";
 
 export default function FileDrive() {
+  const [files, setFiles] = useState<Fileobj[]>([]);
+
+  const [currentFileID, setCurrentFileID] = useState("");
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  const navigate = useNavigate();
+
+  const notify = () => {
+    toast.success("file deleted", {
+      position: toast.POSITION.TOP_LEFT,
+      autoClose: 2000,
+      theme: "dark",
+    });
+  };
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      const filesList = await getFiles();
+      setFiles(filesList);
+      // console.log(filesList);
+    };
+
+    fetchFiles();
+  }, []);
+
+  useEffect(() => {
+    dispatch(setPage("Files"));
+  }, []);
+
+  function handleDeleteClick(fileId: any) {
+    setCurrentFileID(fileId);
+    console.log("deleting");
+    setConfirmDelete(true);
+  }
+
+  function removeFile(): void {
+    const updatedFiles = files.filter((file) => file.id !== currentFileID);
+    setFiles(updatedFiles);
+    notify();
+    deleteFile(currentFileID);
+    setCurrentFileID("");
+    setConfirmDelete(false);
+  }
+
+  function handleChatAgainClick(fileName: any) {
+    dispatch(setFile(fileName));
+    dispatch(newConversation());
+    navigate("/");
+  }
+
   return (
-    <div className="fileDrive-page">
-      <TabsNav></TabsNav>
-      <div className="line"></div>
-      <div className="fileDrive-container">
-        <div className="depName">R&D</div>
-        <div className="sb-search">
-          <IconButton>
-            <SearchIcon
-              style={{ color: "white", marginLeft: "auto" }}
-            ></SearchIcon>
-          </IconButton>
-          <input placeholder="search for file" className="search-box"></input>
+    <div className="filePage">
+      {confirmDelete && (
+        <ConfirmModal
+          text="delete this File? it won't be available any longer"
+          action={() => removeFile()}
+          isOpen={confirmDelete}
+          onClose={() => setConfirmDelete(false)}
+        ></ConfirmModal>
+      )}
+      <div>
+        <TabsNav />
+      </div>
+      <div className="myFiles-area-container">
+        <div className="filesHeadline">My uploaded Files</div>
+        <div className="files-container" style={{ overflow: "auto" }}>
+          <FilesUiProvider config={{ darkMode: true }}>
+            {files
+              .filter((file) => !file.chatIndicator)
+              .map((file) => (
+                <div key={file.id} className="file-render-card">
+                  <div style={{ marginLeft: "0rem" }}>
+                    <FileMosaic
+                      id={file.id}
+                      name={file.name}
+                      size={file.size}
+                      // type={file.type}
+                      type="text/plain"
+                      downloadUrl=""
+                      onDelete={() => handleDeleteClick(file.id)}
+                    />
+                  </div>
+                  <button
+                    className="continue-chat"
+                    onClick={() => handleChatAgainClick(file.name)}
+                  >
+                    Chat again
+                  </button>
+                  {/* <button className="download-btn">Download</button> */}
+                </div>
+              ))}
+          </FilesUiProvider>
         </div>
       </div>
-      <div className="folders-container">
-        <div className="folder-item">
-          <FolderIcon
-            style={{ color: "yellow", fontSize: "3rem" }}
-          ></FolderIcon>
-          <div style={{ fontFamily: "Arial", color: "white" }}>Full-stack</div>
-        </div>
-        <div className="folder-item">
-          <FolderIcon
-            style={{ color: "yellow", fontSize: "3rem" }}
-          ></FolderIcon>
-          <div style={{ fontFamily: "Arial", color: "white" }}>Full-stack</div>
+      <div className="line"></div>
+      <div className="myFiles-area-container">
+        <div className="filesHeadline">My saved Chats</div>
+        <div className="files-container">
+          <FilesUiProvider config={{ darkMode: true }}>
+            {files
+              .filter((file) => file.chatIndicator)
+              .map((file) => (
+                <div key={file.id} className="file-render-card">
+                  <div style={{ marginLeft: "0.0rem" }}>
+                    <FileMosaic
+                      id={file.id}
+                      name={file.name}
+                      size={file.size}
+                      type="text/plain"
+                      // type={file.type}
+                      onDelete={() => handleDeleteClick(file.id)}
+                      downloadUrl=""
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      marginLeft: "4.2rem",
+                    }}
+                  >
+                    {/* <button className="download-btn">Download</button> */}
+                  </div>
+                </div>
+              ))}
+          </FilesUiProvider>
         </div>
       </div>
     </div>

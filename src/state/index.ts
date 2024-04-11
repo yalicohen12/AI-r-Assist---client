@@ -6,6 +6,7 @@ import authSlice from "./authStatusState";
 import pageSlice from "./pageState";
 import currentMessageSlice from "./currentMessageState";
 import modelSlice from "./modelState";
+import fileSlice from "./fileState";
 
 
 const store = configureStore({
@@ -14,7 +15,8 @@ const store = configureStore({
     authSlice: authSlice.reducer,
     pageSlice: pageSlice.reducer,
     currentMessageSlice: currentMessageSlice.reducer,
-    modelSlice:modelSlice.reducer
+    modelSlice: modelSlice.reducer,
+    fileSlice: fileSlice.reducer,
   },
 });
 

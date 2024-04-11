@@ -35,6 +35,9 @@ import ModelDropdown from "../chatPageComponents/modelDropdown/modelDropdown";
 import LinearProgress from "@mui/material/LinearProgress";
 import { deleteConversation } from "../../services/apis/conversationsAPI";
 import { JSX } from "react/jsx-runtime";
+import { Socket, io } from "socket.io-client";
+import { clearFile, setFile } from "../../state/fileState";
+import { setPage } from "../../state/pageState";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -48,6 +51,9 @@ export default function ChatArea() {
   const fetchaedMsgs = useAppSelector(
     (state) => state.conversationSlice.fetchedMessages
   );
+
+  const importedFileName = useAppSelector((state) => state.fileSlice.fileName);
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -75,6 +81,10 @@ export default function ChatArea() {
 
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    dispatch(setPage("Chat"));
+  }, []);
+
   const notifyFileOverflow = () => {
     toast.error("File is to long", {
       position: toast.POSITION.TOP_RIGHT,
@@ -85,6 +95,15 @@ export default function ChatArea() {
   function handleFileRemove() {
     setCurrentFile("");
     setUploadedFile(null);
+    if (importedFileName) {
+      dispatch(clearFile());
+    }
+  }
+
+  function generateMessageID(): string {
+    const timestamp = Date.now().toString(36);
+    const randomString = Math.random().toString(36).substring(2);
+    return timestamp + randomString;
   }
 
   //handles new file picked
@@ -135,7 +154,7 @@ export default function ChatArea() {
           key={index}
           sender={msg.sender}
           value={msg.value}
-          messageID={index}
+          messageIndex={index}
         />
       ));
       setMessages(newMessages);
@@ -187,15 +206,18 @@ export default function ChatArea() {
     setMessage("");
 
     const msg = (
-      <DisplayMessage sender="You" value={messageVaribale} messageID={0} />
+      <DisplayMessage sender="You" value={messageVaribale} messageIndex={0} />
     );
-    setIsApiProcessing(true);
+    if (modelStatus !== "online") {
+      setIsApiProcessing(true);
+    }
 
     setMessages((prevMessages) => [...prevMessages, msg]);
 
     if (modelStatus === "online") {
       setIsLoading(true);
     }
+    console.log(modelStatus);
 
     try {
       let isItNew = false;
@@ -203,17 +225,21 @@ export default function ChatArea() {
         isItNew = true;
       }
 
+      console.log(isItNew);
+
       const currentTimestamp = Date.now() / 1000;
-      dispatch(setMessageID(currentTimestamp));
+      const msgID = generateMessageID();
+      dispatch(setMessageID(msgID));
       handleScrollDown();
 
       const response = await handleNewQuestion(
         messageVaribale,
         selectedCard || "",
         (isChecked && uploadedFile) || null,
-        (isChecked && currentFileChat) || "",
+        (isChecked && currentFileChat) || (isChecked && importedFileName) || "",
         modelStatus
       );
+      console.log(response);
 
       let apiResponseMessage: JSX.Element;
       if (response.aiResponse) {
@@ -221,7 +247,7 @@ export default function ChatArea() {
           <DisplayMessage
             sender="LLama"
             value={response.aiResponse}
-            messageID={currentTimestamp}
+            messageIndex={currentTimestamp}
           />
         );
       } else {
@@ -229,12 +255,13 @@ export default function ChatArea() {
           <DisplayMessage
             sender="LLama"
             value={"you fail" || "" || "not"}
-            messageID={currentTimestamp}
+            messageIndex={currentTimestamp}
+            messageID={msgID}
           />
         );
       }
       if (isItNew) {
-        console.log("first MSG detcet")
+        console.log("first MSG detcet");
         // dispatch(set(localStorage.getItem("conversationID") + ""));
         dispatch(onFirstMsg(localStorage.getItem("conversationID") + ""));
       }
@@ -246,7 +273,7 @@ export default function ChatArea() {
       <DisplayMessage
         sender="LLama"
         value={"i am currently down"}
-        messageID={0}
+        messageIndex={0}
       />;
     } finally {
       setIsLoading(false);
@@ -335,10 +362,7 @@ export default function ChatArea() {
             <IconButton className="icon">
               {authStatus && (
                 <div className="logContainer" onClick={handleLogout}>
-                  <LogoutIcon
-                    onClick={handleLogout}
-                    className="logouticon"
-                  ></LogoutIcon>
+                  <LogoutIcon className="logouticon"></LogoutIcon>
                   <div className="logTxt"> Logout</div>
                 </div>
               )}
@@ -424,51 +448,92 @@ export default function ChatArea() {
             </IconButton>
           </div>
         )}
-        {/* <div className="input-container"></div> */}
-        <div className="text-input-area">
-          <textarea
-            placeholder="Type a message"
-            className="search-box"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyPress}
-            disabled={isApiProcessing}
-          />
-          <label htmlFor="fileInput">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Tooltip
-                title={
-                  uploadedFile || currentFileChat
-                    ? "Change File"
-                    : "Upload File"
-                }
-                arrow
-              >
-                <UploadFileIcon
-                  // className="upload"
-                  style={{
-                    fontSize: "2rem",
-                    color: "white",
-                  }}
-                ></UploadFileIcon>
-              </Tooltip>
-            </div>
-            <input
-              type="file"
-              id="fileInput"
-              accept=".txt, .doc, .docx, .py, .js"
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
-          </label>
-          <Tooltip title="send" arrow>
-            <IconButton
-              disabled={isApiProcessing}
-              onClick={() => handleSendMessage()}
-            >
-              <SendIcon style={{ color: "white" }} />
+        {authStatus && !currentFileChat && importedFileName && (
+          <div className="saveChatArea">
+            <div className="fileName"> {importedFileName}</div>
+            <Tooltip title={isChecked ? "Cancel File usage" : "Use File"} arrow>
+              <Checkbox
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                color="success"
+              />
+            </Tooltip>
+            <IconButton onClick={handleFileRemove}>
+              <CloseIcon
+                style={{
+                  marginBottom: "auto",
+                  color: "black",
+                  fontSize: "1.5rem",
+                }}
+              ></CloseIcon>
             </IconButton>
-          </Tooltip>
+          </div>
+        )}
+        <div className="chat-tail">
+          <div className="text-input-area">
+            <textarea
+              placeholder="Type a message"
+              className="search-box"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
+              disabled={isApiProcessing}
+              style={{ resize: "none" }}
+            />
+            <label htmlFor="fileInput">
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Tooltip
+                  title={
+                    uploadedFile || currentFileChat
+                      ? "Change File"
+                      : "Upload File"
+                  }
+                  arrow
+                >
+                  <UploadFileIcon
+                    // className="upload"
+                    style={{
+                      fontSize: "2rem",
+                      color: "white",
+                    }}
+                  ></UploadFileIcon>
+                </Tooltip>
+              </div>
+              <input
+                type="file"
+                id="fileInput"
+                accept=".txt, .doc, .docx, .py, .js"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+            </label>
+            <Tooltip title="send" arrow>
+              <IconButton
+                disabled={isApiProcessing}
+                onClick={() => handleSendMessage()}
+              >
+                <SendIcon style={{ color: "white" }} />
+              </IconButton>
+            </Tooltip>
+          </div>
+
+          {messages.length>1 && (
+            <Tooltip title="Save Conversation" arrow>
+              <IconButton
+                sx={{
+                  height: "3rem",
+                  width: "3rem",
+                  backgroundColor: "rgb(123, 123, 135)",
+                  "&:hover": {
+                    backgroundColor: "rgb(159, 159, 168)",
+                  },
+                }}
+                className="saveChat-icon"
+              >
+                <SaveIcon style={{ color: "white" }}></SaveIcon>
+              </IconButton>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>

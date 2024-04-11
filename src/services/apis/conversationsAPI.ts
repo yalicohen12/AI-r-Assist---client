@@ -83,7 +83,7 @@ export async function createConversation(
       );
 
       localStorage.setItem("conversationID", conversation.data.conversationID);
-      return conversation.data.aiResponse as string;
+      return conversation.data as string;
     } catch (error) {
       console.error("API request failed:", error);
       throw error;

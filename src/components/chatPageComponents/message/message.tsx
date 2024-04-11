@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import atelierCaveDark from "react-syntax-highlighter/dist/esm/styles/hljs/atelier-cave-dark";
+
 import {
   a11yLight,
   a11yDark,
@@ -16,12 +18,16 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
 import { regenerateResponse } from "../../../services/apis/conversationsAPI";
+import { Javascript } from "@mui/icons-material";
+import { dark } from "@mui/material/styles/createPalette";
 
 interface MessageProps {
   sender: string;
   value: string;
-  messageID: number;
+  messageIndex: number;
+  messageID?: string;
   onlyLoader?: boolean;
+  lastMessageID?: string;
 }
 
 const DisplayMessage: React.FC<MessageProps> = ({
@@ -29,6 +35,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
   value,
   messageID,
   onlyLoader = false,
+  messageIndex,
 }) => {
   const messageState = useAppSelector(
     (state) => state.currentMessageSlice.messageID
@@ -48,22 +55,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
 
   const modelStatus = useAppSelector((state) => state.modelSlice.model);
 
-  // useEffect(() => {
-  //   setAccumulatedContent("");
-  // }, [conID]);
-
-  // useEffect(() => {
-  //   if (value != "you fail") {
-  //     setAccumulatedContent(value);
-  //   }
-  // }, []);
-
-  // const [valueState, setValueState] = useState("");
-
-  // useEffect(() => {
-  //   setValueState(value);
-  // }, [value]);
-
   const [inCodeBlock, setIsOnCodeBlock] = useState(false);
 
   useEffect(() => {
@@ -75,7 +66,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
   useEffect(() => {
     if (
       sender === "LLama" &&
-      messageID != 0 &&
+      messageIndex != 0 &&
       messageState === messageID &&
       value === "you fail" &&
       onlyLoader === false
@@ -89,6 +80,10 @@ const DisplayMessage: React.FC<MessageProps> = ({
         setSocket(null);
       }
     }
+    return () => {
+      // console.log("unMout");
+      setAccumulatedContent("");
+    };
   }, []);
 
   function getMsg() {
@@ -155,8 +150,8 @@ const DisplayMessage: React.FC<MessageProps> = ({
   function DeleteMessage() {}
 
   async function handleRestartClick() {
-    setIsLoading(true)
-    const regenRes = await regenerateResponse(messageID, modelStatus);
+    setIsLoading(true);
+    const regenRes = await regenerateResponse(messageIndex, modelStatus);
     if (!regenRes.aiResponse) {
       setAccumulatedContent("");
       // setValueState("");
@@ -165,7 +160,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
     } else {
       setAccumulatedContent(regenRes.aiResponse);
     }
-    setIsLoading(false)
+    setIsLoading(false);
   }
 
   if (onlyLoader) {
@@ -207,11 +202,12 @@ const DisplayMessage: React.FC<MessageProps> = ({
           />
         )}
         {!regenrateFlag && !accumulatedContent && value != "you fail" && (
-          <RenderContent
-            content={value}
-            inCodeBlock={inCodeBlock}
-            setIsOnCodeBlock={setIsOnCodeBlock}
-          />
+          // <RenderContent
+          //   content={value}
+          //   inCodeBlock={inCodeBlock}
+          //   setIsOnCodeBlock={setIsOnCodeBlock}
+          // />
+          <RenderFetchedContent content={value}></RenderFetchedContent>
         )}
         {loading && <LoadingSpinner></LoadingSpinner>}
       </div>
@@ -275,6 +271,46 @@ const DisplayMessage: React.FC<MessageProps> = ({
       )}
     </div>
   );
+};
+
+const RenderFetchedContent: React.FC<{
+  content: string;
+}> = ({ content }) => {
+  const codeBlockRegex = /```([\s\S]*?)```/g;
+
+  // Split content into parts: code blocks and regular text
+  const parts = content.split(codeBlockRegex);
+
+  // Render code blocks and regular text
+  const renderParts = () => {
+    return parts.map((part, index) => {
+      if (index % 2 === 1) {
+        // If index is odd, it's a code block
+        const lang = part.split("\n")[0].trim(); // Extract language from the first line
+        return (
+          <SyntaxHighlighter
+            customStyle={{
+              backgroundColor: "#282A3A",
+              padding: "0.5rem",
+              borderRadius: "1rem",
+              margin: "1rem 0.2rem",
+            }}
+            key={index}
+            language="javascript"
+            style={a11yDark}
+            wrapLongLines
+          >
+            {part.trim()}
+          </SyntaxHighlighter>
+        );
+      } else {
+        // If index is even, it's regular text
+        return <div key={index}>{part}</div>;
+      }
+    });
+  };
+
+  return <>{renderParts()}</>;
 };
 
 const RenderContent: React.FC<{

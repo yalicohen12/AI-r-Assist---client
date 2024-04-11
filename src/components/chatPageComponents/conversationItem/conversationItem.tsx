@@ -13,6 +13,8 @@ import TextField from "@mui/material/TextField";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { renameConversation } from "../../../services/apis/conversationsAPI";
+import SaveIcon from '@mui/icons-material/Save';
+
 
 interface ConversationItemProps {
   title: string;
@@ -57,6 +59,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   }
 
   function handleEditClick(event: React.MouseEvent) {
+    setFromDelete(true);
     event.stopPropagation();
     setIsEditing(true);
   }
@@ -77,7 +80,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   }
 
   function handleDelete(event: React.MouseEvent) {
-    console.log("dd");
+    // console.log("dd");
     setFromDelete(true);
     event.stopPropagation();
     setIsOpen(true);
@@ -153,14 +156,30 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           ></EditIcon>
         )}
       </div>
-
-      <div className="casefDelete" onClick={(event) => handleDelete(event)}>
-        <DeleteIcon
-          style={{ fontSize: "1.1rem" }}
-          className="deleteIcon"
-          // onClick={handleDelete}
-        ></DeleteIcon>
+      <div className="casef2">
+        <IconButton
+          className="casefDelete"
+          onClick={(event) => handleDelete(event)}
+        >
+          <DeleteIcon
+            style={{ fontSize: "1.1rem" }}
+            className="deleteIcon"
+            // onClick={handleDelete}
+          ></DeleteIcon>
+        </IconButton>
       </div>
+      {/* <div className="casef2">
+        <IconButton
+          className="casefDelete"
+          onClick={(event) => handleDelete(event)}
+        >
+          <SaveIcon
+            style={{ fontSize: "1.1rem" }}
+            className="saveIcon"
+            // onClick={handleDelete}
+          ></SaveIcon>
+        </IconButton>
+      </div> */}
     </div>
   );
 };

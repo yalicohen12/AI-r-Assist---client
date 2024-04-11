@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 interface currentMessageState {
-  messageID: number;
+  messageID: string;
 }
 
 const initialState: currentMessageState = {
-  messageID: 0,
+  messageID: "None",
 };
 
 const currentMessageSlice = createSlice({
