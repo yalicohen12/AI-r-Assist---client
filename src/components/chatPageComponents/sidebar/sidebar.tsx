@@ -96,7 +96,6 @@ export default function Sidebar() {
     console.log("local is: ", localStorage.getItem("conversationID"));
 
     if (localStorage.getItem("conversationID") === conID) {
-      console.log("in critucal moment");
       dispatch(newConversation());
       // localStorage.setItem("conversationID", "");
     }

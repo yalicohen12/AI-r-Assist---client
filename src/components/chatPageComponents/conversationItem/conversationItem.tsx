@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import "./conversationItem.css";
 import { useAppDispatch, useAppSelector } from "../../../state";
-import { set, newConversation } from "../../../state/conversationState";
+import {
+  set,
+  newConversation,
+  setConversationName,
+} from "../../../state/conversationState";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconButton } from "@mui/material";
@@ -13,8 +17,7 @@ import TextField from "@mui/material/TextField";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { renameConversation } from "../../../services/apis/conversationsAPI";
-import SaveIcon from '@mui/icons-material/Save';
-
+import SaveIcon from "@mui/icons-material/Save";
 
 interface ConversationItemProps {
   title: string;
@@ -41,21 +44,41 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
 
   const [fromDelete, setFromDelete] = useState(false);
 
+  const isStreaming = useAppSelector(
+    (state) => state.streamingSlice.isStreaming
+  );
+
   const notify = () => {
     toast.success("conversation deleted", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000,
+      theme: "dark",
+    });
+  };
+
+  const notifyStreamingWait = () => {
+    toast.info("please wait until message will finish load", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000,
+      theme: "dark",
     });
   };
 
   function handleConversationClicked(): void {
-    // console.log("clicked");
-    if (!fromDelete) {
-      // console.log("clicked2");
-      localStorage.setItem("conversationID", conversationID);
-      dispatch(set(conversationID));
+    console.log(isStreaming)
+    if (!isStreaming) {
+      if (!fromDelete) {
+        localStorage.setItem("conversationID", conversationID);
+        dispatch(set(conversationID));
+        dispatch(setConversationName(title));
+      }
+      setFromDelete(false);
+    } else {
+      if (!fromDelete) {
+        setFromDelete(false);
+      }
+      notifyStreamingWait();
     }
-    setFromDelete(false);
   }
 
   function handleEditClick(event: React.MouseEvent) {

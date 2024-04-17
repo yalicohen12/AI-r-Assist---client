@@ -3,18 +3,35 @@ import "./tabs.css";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../state";
 import { setPage } from "../../state/pageState";
+import { toast } from "react-toastify";
 
 function TabsNav() {
   const navigate = useNavigate();
   const currentPage = useAppSelector((state) => state.pageSlice.page);
   const dispatch = useAppDispatch();
 
+  const notifyStreamingWait = () => {
+    toast.info("please wait until message will finish load", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000,
+      theme: "dark",
+    });
+  };
+
+  const isStreaming = useAppSelector(
+    (state) => state.streamingSlice.isStreaming
+  );
+
   const handleTabClick = (tabName: string) => {
-    dispatch(setPage(tabName));
-    if (tabName == "Chat") {
-      navigate("/");
+    if (!isStreaming) {
+      dispatch(setPage(tabName));
+      if (tabName == "Chat") {
+        navigate("/");
+      } else {
+        navigate(`/${tabName.toLowerCase()}`);
+      }
     } else {
-      navigate(`/${tabName.toLowerCase()}`);
+      notifyStreamingWait();
     }
   };
 

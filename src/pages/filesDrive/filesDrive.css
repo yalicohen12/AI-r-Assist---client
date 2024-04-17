@@ -10,7 +10,7 @@
 }
 
 .myFiles-area-container {
-  margin: 2.5rem 2.7rem;
+  margin: 1rem 2.7rem;
 }
 
 .filesHeadline {
@@ -46,7 +46,6 @@
   background-color: #8e86ea;
 }
 
-
 .download-btn {
   color: white;
   background-color: #15973a;
@@ -65,4 +64,12 @@
   display: flex;
   flex-direction: row;
   gap: 3rem;
+}
+
+.no-file {
+  font-family: "Poppins";
+  color: white;
+  font-size: 2.3rem;
+  text-align: center;
+  margin-top: 15%;
 }

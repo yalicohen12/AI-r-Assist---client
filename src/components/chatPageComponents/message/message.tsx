@@ -20,6 +20,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import { regenerateResponse } from "../../../services/apis/conversationsAPI";
 import { Javascript } from "@mui/icons-material";
 import { dark } from "@mui/material/styles/createPalette";
+import { turnStreamOff } from "../../../state/streamingStatus";
 
 interface MessageProps {
   sender: string;
@@ -57,6 +58,8 @@ const DisplayMessage: React.FC<MessageProps> = ({
 
   const [inCodeBlock, setIsOnCodeBlock] = useState(false);
 
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     setAccumulatedContent("");
   }, []);
@@ -66,7 +69,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
   useEffect(() => {
     if (
       sender === "LLama" &&
-      messageIndex != 0 &&
+      // messageIndex != 0 &&
       messageState === messageID &&
       value === "you fail" &&
       onlyLoader === false
@@ -111,6 +114,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
     });
 
     newSocket.on("stream_end", () => {
+      dispatch(turnStreamOff());
       console.log("ending");
       if (regenrateFlag) {
         setValueState(accumulatedContent);

@@ -56,6 +56,7 @@ export default function LoginModal({ onClose, isOpen }: LoginModalProps) {
     toast.success("Welcome back!", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000,
+      theme: "dark",
     });
   };
 
@@ -63,12 +64,14 @@ export default function LoginModal({ onClose, isOpen }: LoginModalProps) {
     toast.error("false user parameters", {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 6000,
+      theme: "dark",
     });
   };
   const notifyFormNotFilled = () => {
     toast.error("Fill Inputs Properly", {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 6000,
+      theme: "dark",
     });
   };
 

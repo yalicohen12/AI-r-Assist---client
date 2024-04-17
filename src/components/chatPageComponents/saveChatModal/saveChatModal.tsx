@@ -5,17 +5,30 @@ import { IconButton } from "@mui/material";
 import "./saveChatModal.css";
 import { saveConversation } from "../../../services/apis/conversationsAPI";
 import { toast } from "react-toastify";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
 
 interface SaveChatModalProps {
   onClose: () => void;
   isOpen: boolean;
+  conversationName: string;
 }
 
-export default function SaveChatModal({ onClose, isOpen }: SaveChatModalProps) {
+export default function SaveChatModal({
+  onClose,
+  isOpen,
+  conversationName,
+}: SaveChatModalProps) {
   const [fileTitle, setFileTitle] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState(conversationName);
   const [dummyText, setDummyText] = useState("");
   const [onLogin, setIsOnLogin] = useState(true);
+
+  const [selectedValue, setSelectedValue] = useState("Pdf");
+
   if (!isOpen) {
     return null;
   }
@@ -36,9 +49,10 @@ export default function SaveChatModal({ onClose, isOpen }: SaveChatModalProps) {
   async function handleSaveChat() {
     try {
       const saveResponse = await saveConversation(
-        fileTitle,
+        fileName,
         localStorage.getItem("conversationID") || "",
-        dummyText
+        dummyText,
+        selectedValue
       );
       if (saveResponse == "File saved") {
         setFileTitle("");
@@ -52,10 +66,13 @@ export default function SaveChatModal({ onClose, isOpen }: SaveChatModalProps) {
       notifyIssue();
     }
   }
+  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedValue(event.target.value);
+  };
 
   return (
-    <div className="logApp">
-      <div className="saveChatContainer">
+    <div className="logApp" onClick={() => onClose()}>
+      <div className="saveChatContainer" onClick={(e) => e.stopPropagation()}>
         <div className="close">
           <IconButton
             onClick={() => {
@@ -67,9 +84,15 @@ export default function SaveChatModal({ onClose, isOpen }: SaveChatModalProps) {
           </IconButton>
         </div>
         <div className="saveChatForm">
-          <div className="hedline">Save Chat to File</div>
+          <div className="hedline" style={{ color: "white" }}>
+            Save Chat to File
+          </div>
           <div className="file-title">
-            <label className="modaltxt" htmlFor="fileTitleInput">
+            <label
+              style={{ color: "white" }}
+              className="modaltxt"
+              htmlFor="fileTitleInput"
+            >
               Set File Name
             </label>
             <input
@@ -77,37 +100,35 @@ export default function SaveChatModal({ onClose, isOpen }: SaveChatModalProps) {
               className="title-input"
               type="text"
               value={fileName}
-              placeholder="type Name"
+              placeholder={conversationName}
               onChange={(e) => setFileName(e.target.value)}
+              style={{ fontFamily: "Poppins", fontSize: "1rem" }}
             />
           </div>
+          <FormControl>
+            <FormLabel
+              id="demo-row-radio-buttons-group-label"
+              style={{ color: "white" }}
+            >
+              File type
+            </FormLabel>
+            <RadioGroup
+              row
+              aria-labelledby="demo-row-radio-buttons-group-label"
+              name="row-radio-buttons-group"
+              value={selectedValue}
+              onChange={handleRadioChange}
+              style={{ color: "white" }}
+            >
+              <FormControlLabel value="Pdf" control={<Radio />} label="Pdf" />
+              <FormControlLabel value="txt" control={<Radio />} label="txt" />
+            </RadioGroup>
+          </FormControl>
+
           <div className="file-title">
-            <label className="modaltxt" htmlFor="fileTitleInput">
-              Set File Title
-            </label>
-            <input
-              id="fileTitleInput"
-              className="title-input"
-              type="text"
-              value={fileTitle}
-              placeholder="type title"
-              onChange={(e) => setFileTitle(e.target.value)}
-            />
-          </div>
-          <div className="dropdown-container">
-            <label className="modaltxt" htmlFor="folderSelect">
-              Choose Folder
-            </label>
-            <div className="dropdown-wrapper">
-              <select id="folderSelect">
-                <option value="folder1">Folder 1</option>
-                <option value="folder2">Folder 2</option>
-              </select>
-              {/* <ArrowDropDownIcon /> */}
+            <div className="modaltxt" style={{ color: "white" }}>
+              Add an introduction
             </div>
-          </div>
-          <div className="file-title">
-            <div className="modaltxt">Add an introduction</div>
             <textarea
               id="dummyTextInput"
               value={dummyText}
@@ -115,16 +136,26 @@ export default function SaveChatModal({ onClose, isOpen }: SaveChatModalProps) {
               onChange={(e) => setDummyText(e.target.value)}
               className="textarea"
               cols={50}
+              style={{ fontSize: "1rem" }}
             />
           </div>
-
-          <button
-            value={"Submit"}
-            onClick={handleSaveChat}
-            className="save-chat-btn"
-          >
-            Save
-          </button>
+          <div className="Save-Chat-Btns">
+            <button
+              style={{ color: "white" }}
+              value={"Submit"}
+              onClick={handleSaveChat}
+              className="save-chat-btn"
+            >
+              Save
+            </button>
+            <button
+              style={{ color: "white" }}
+              className="cancel-chat-btn"
+              onClick={() => onClose()}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -245,7 +245,8 @@ export async function deleteMsg(index: number, conID: string) {
 export async function saveConversation(
   title: string,
   conID: string,
-  introduction: string
+  introduction: string,
+  fileType: string
 ) {
   if (localStorage.getItem("userID")) {
     try {
@@ -254,6 +255,7 @@ export async function saveConversation(
         conversationID: conID,
         title: title,
         introduction: introduction,
+        fileType: fileType,
       });
       return "File saved";
     } catch {
@@ -262,19 +264,20 @@ export async function saveConversation(
   }
 }
 
-
-export async function renameConversation(conversationID:string , newName:string) {
+export async function renameConversation(
+  conversationID: string,
+  newName: string
+) {
   if (localStorage.getItem("userID")) {
     try {
       await axios.post("http://localhost:4000/renameConversation", {
         userID: localStorage.getItem("userID"),
         conversationID: conversationID,
-        newName:newName
+        newName: newName,
       });
       return "File saved";
     } catch {
       return "error in proccess";
     }
   }
-  
 }

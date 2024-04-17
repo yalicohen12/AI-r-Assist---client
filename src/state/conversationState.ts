@@ -4,11 +4,13 @@ import { stat } from "fs";
 interface ConversationState {
   conversationID: string;
   fetchedMessages: boolean;
+  conversationName?: string;
 }
 
 const initialState: ConversationState = {
   conversationID: localStorage.getItem("conversationID") || "",
   fetchedMessages: false,
+  conversationName: "",
 };
 
 const conversationSlice = createSlice({
@@ -20,7 +22,7 @@ const conversationSlice = createSlice({
       state.fetchedMessages = false;
       localStorage.setItem("conversationID", action.payload);
     },
-    onFirstMsg(state ,action: PayloadAction<string>) {
+    onFirstMsg(state, action: PayloadAction<string>) {
       state.conversationID = action.payload;
       localStorage.setItem("conversationID", action.payload);
       state.fetchedMessages = true;
@@ -30,8 +32,12 @@ const conversationSlice = createSlice({
       state.conversationID = "";
       localStorage.setItem("conversationID", "");
     },
+    setConversationName(state, action: PayloadAction<string>) {
+      state.conversationName = action.payload;
+    },
   },
 });
 
 export default conversationSlice;
-export const { set, newConversation, onFirstMsg } = conversationSlice.actions;
+export const { set, newConversation, onFirstMsg, setConversationName } =
+  conversationSlice.actions;

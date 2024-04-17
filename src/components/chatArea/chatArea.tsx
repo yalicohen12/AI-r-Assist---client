@@ -38,6 +38,7 @@ import { JSX } from "react/jsx-runtime";
 import { Socket, io } from "socket.io-client";
 import { clearFile, setFile } from "../../state/fileState";
 import { setPage } from "../../state/pageState";
+import { turnStreamOff, turnStreamOn } from "../../state/streamingStatus";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -65,6 +66,10 @@ export default function ChatArea() {
   const [isSaveChatOpen, setIsSaveChatOpen] = useState(false);
 
   const [isChecked, setIsChecked] = useState(true);
+
+  const currentConversationName = useAppSelector(
+    (state) => state.conversationSlice.conversationName
+  );
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
@@ -193,12 +198,14 @@ export default function ChatArea() {
 
   // handles user send message
   async function handleSendMessage() {
+    dispatch(turnStreamOn());
     if (!localStorage.getItem("userID")) {
       setIsOpen(true);
       notifyLogin();
       return;
     }
     // setIsLoading(true);
+
     if (message == "" || message.length < 2) {
       return;
     }
@@ -250,12 +257,13 @@ export default function ChatArea() {
             messageIndex={currentTimestamp}
           />
         );
+        dispatch(turnStreamOff());
       } else {
         apiResponseMessage = (
           <DisplayMessage
             sender="LLama"
             value={"you fail" || "" || "not"}
-            messageIndex={currentTimestamp}
+            messageIndex={messages.length}
             messageID={msgID}
           />
         );
@@ -338,6 +346,7 @@ export default function ChatArea() {
       <SaveChatModal
         isOpen={isSaveChatOpen}
         onClose={() => setIsSaveChatOpen(false)}
+        conversationName={currentConversationName || ""}
       ></SaveChatModal>
       <div
         className="chat-header"
@@ -517,9 +526,10 @@ export default function ChatArea() {
             </Tooltip>
           </div>
 
-          {messages.length>1 && (
+          {messages.length > 1 && (
             <Tooltip title="Save Conversation" arrow>
               <IconButton
+                onClick={() => setIsSaveChatOpen(true)}
                 sx={{
                   height: "3rem",
                   width: "3rem",
