@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Select from "react-select";
 import { useAppDispatch, useAppSelector } from "../../../state";
-import { turnOffline,turnOnline } from "../../../state/modelState";
+import { turnOffline, turnOnline } from "../../../state/modelState";
 
 interface OptionType {
   value: string;
@@ -13,12 +13,12 @@ const options: OptionType[] = [
   {
     value: "offline",
     label: "LLama model Offline",
-    icon: "/img/icons8-offline-48.png",
+    icon: "/img/icons8-offline-24.png",
   },
   {
     value: "online",
     label: "Open AI model Online",
-    icon: "/img/icons8-online-48.png",
+    icon: "/img/icons8-online-50.png",
   },
 ];
 
@@ -42,8 +42,23 @@ const customStyles = {
     width: "24px",
     height: "24px",
     verticalAlign: "middle",
+    animation: "blink 1s infinite", // Applying the animation here
   },
 };
+
+const keyframes = `
+  @keyframes blink {
+    0% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0.2;
+    }
+  }
+`;
 
 const ModelDropdown: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -57,24 +72,45 @@ const ModelDropdown: React.FC = () => {
       }
     }
   };
+  useEffect(() => {
+    dispatch(turnOffline());
+  }, []);
 
   return (
-    <Select
-      options={options}
-      defaultValue={options[0]}
-      styles={customStyles}
-      getOptionLabel={(option: OptionType) => option.label}
-      getOptionValue={(option: OptionType) => option.value}
-      formatOptionLabel={(option: OptionType) => (
-        <div style={{ fontFamily: "Arial, sans-serif", color: "white" }}>
-          {option.icon && (
-            <img src={option.icon} alt="" style={customStyles.optionImage} />
-          )}
-          {option.label}
-        </div>
-      )}
-      onChange={handleChange}
-    />
+    <>
+      <style>{keyframes}</style> {/* Inject the keyframes */}
+      <Select
+        options={options}
+        defaultValue={options[0]}
+        styles={customStyles}
+        getOptionLabel={(option: OptionType) => option.label}
+        getOptionValue={(option: OptionType) => option.value}
+        formatOptionLabel={(option: OptionType) => (
+          <div
+            style={{
+              fontFamily: "Arial, sans-serif",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {option.icon && (
+              // <div className="circle"></div>
+              <img
+                style={{
+                  ...customStyles.optionImage,
+                  animation: "blink 1s infinite",
+                }}
+                src={option.icon}
+                alt=""
+              />
+            )}
+            {option.label}
+          </div>
+        )}
+        onChange={handleChange}
+      />
+    </>
   );
 };
 

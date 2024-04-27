@@ -39,6 +39,7 @@ import { Socket, io } from "socket.io-client";
 import { clearFile, setFile } from "../../state/fileState";
 import { setPage } from "../../state/pageState";
 import { turnStreamOff, turnStreamOn } from "../../state/streamingStatus";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -363,7 +364,7 @@ export default function ChatArea() {
           <div className="mode-icon">
             <IconButton>
               <div className="colorContainer">
-                <ColorToggle></ColorToggle>
+                {/* <ColorToggle></ColorToggle> */}
               </div>
             </IconButton>
           </div>
@@ -394,6 +395,7 @@ export default function ChatArea() {
         {isOpen == false && (!messages || messages.length === 0) && (
           <div className="wel-p"> How can I help you today?</div>
         )}
+        {/* <div className="circle"></div> */}
         {!messages || messages.length === 0 ? null : <>{messages}</>}
         {isLoading && (
           <div style={{ position: "absolute", left: "25%", bottom: "13%" }}>
@@ -499,13 +501,12 @@ export default function ChatArea() {
                   }
                   arrow
                 >
-                  <UploadFileIcon
-                    // className="upload"
+                  <FileUploadIcon
                     style={{
-                      fontSize: "2rem",
-                      color: "white",
+                      fontSize: "2.2rem",
+                      color: "#008188",
                     }}
-                  ></UploadFileIcon>
+                  ></FileUploadIcon>
                 </Tooltip>
               </div>
               <input
@@ -527,20 +528,20 @@ export default function ChatArea() {
           </div>
 
           {messages.length > 1 && (
-            <Tooltip title="Save Conversation" arrow>
+            <Tooltip title="Save Chat" arrow>
               <IconButton
                 onClick={() => setIsSaveChatOpen(true)}
                 sx={{
                   height: "3rem",
                   width: "3rem",
-                  backgroundColor: "rgb(123, 123, 135)",
+                  backgroundColor: "#1F012E",
                   "&:hover": {
-                    backgroundColor: "rgb(159, 159, 168)",
+                    backgroundColor: "#250635",
                   },
                 }}
                 className="saveChat-icon"
               >
-                <SaveIcon style={{ color: "white" }}></SaveIcon>
+                <SaveIcon color="primary"></SaveIcon>
               </IconButton>
             </Tooltip>
           )}

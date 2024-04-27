@@ -82,6 +82,7 @@
   position: relative;
   /* align-items: center;
   justify-content: space-between; */
+  background-color: #1e2a3a;
 }
 
 .saveChat-icon {
@@ -96,6 +97,8 @@
   color: white;
   font-family: "Poppins", sans-serif;
   resize: vertical;
+  background-color: #1e2a3a;
+  background-color: transparent;
 }
 
 .input-container {

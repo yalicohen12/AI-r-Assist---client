@@ -8,6 +8,7 @@ import currentMessageSlice from "./currentMessageState";
 import modelSlice from "./modelState";
 import fileSlice from "./fileState";
 import streamingSlice from "./streamingStatus";
+import countSlice from "./countState";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     modelSlice: modelSlice.reducer,
     fileSlice: fileSlice.reducer,
     streamingSlice: streamingSlice.reducer,
+    countSlice: countSlice.reducer,
   },
 });
 

@@ -6,6 +6,7 @@ import LoginPage from "./pages/auth/loginModal";
 import Signup from "./pages/auth/signupModal";
 import FileDrive from "./pages/filesDrive/filesDrive";
 import { CSSTransition } from "react-transition-group";
+import UserProfile from "./pages/user/userProfile";
 
 function App() {
   // useEffect(() => {
@@ -27,6 +28,15 @@ function App() {
             element={
               <CSSTransition classNames="fade" timeout={600}>
                 <FileDrive />
+              </CSSTransition>
+            }
+          ></Route>
+
+          <Route
+            path="/User"
+            element={
+              <CSSTransition classNames="fade" timeout={600}>
+                <UserProfile />
               </CSSTransition>
             }
           ></Route>

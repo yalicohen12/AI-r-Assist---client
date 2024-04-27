@@ -27,12 +27,16 @@
   align-items: center;
   gap: 1rem;
   background-color: rgb(28, 30, 58, 1);
+  height: 1.9rem;
+  margin-bottom: 1rem;
+  background-color: #1E2A3A;
+
 }
 
 .search-box {
   outline-width: 0;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   background-color: rgb(28, 30, 58, 1);
 }
 
@@ -110,4 +114,16 @@
 
 .sb-conversations::-webkit-scrollbar {
   width: 0; /* Set the width of the scrollbar to 0 */
+}
+
+
+.chat-headline {
+  color: white;
+  font-family: 'poppins';
+  color: #7368f3;
+  font-size: 1.2rem;
+}
+
+.contain {
+  margin: 0rem 0.9rem;
 }

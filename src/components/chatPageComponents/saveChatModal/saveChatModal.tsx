@@ -27,7 +27,7 @@ export default function SaveChatModal({
   const [dummyText, setDummyText] = useState("");
   const [onLogin, setIsOnLogin] = useState(true);
 
-  const [selectedValue, setSelectedValue] = useState("Pdf");
+  const [selectedValue, setSelectedValue] = useState("txt");
 
   if (!isOpen) {
     return null;
@@ -120,8 +120,8 @@ export default function SaveChatModal({
               onChange={handleRadioChange}
               style={{ color: "white" }}
             >
-              <FormControlLabel value="Pdf" control={<Radio />} label="Pdf" />
               <FormControlLabel value="txt" control={<Radio />} label="txt" />
+              <FormControlLabel value="Pdf" control={<Radio />} label="Pdf" />
             </RadioGroup>
           </FormControl>
 

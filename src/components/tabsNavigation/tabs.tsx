@@ -10,8 +10,18 @@ function TabsNav() {
   const currentPage = useAppSelector((state) => state.pageSlice.page);
   const dispatch = useAppDispatch();
 
+  const authStatus = useAppSelector((state) => state.authSlice.isAuth);
+
   const notifyStreamingWait = () => {
     toast.info("please wait until message will finish load", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000,
+      theme: "dark",
+    });
+  };
+
+  const notifyLoginFirst = () => {
+    toast.info("you must be logged in to view this page", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000,
       theme: "dark",
@@ -24,11 +34,23 @@ function TabsNav() {
 
   const handleTabClick = (tabName: string) => {
     if (!isStreaming) {
-      dispatch(setPage(tabName));
+      // dispatch(setPage(tabName));
       if (tabName == "Chat") {
         navigate("/");
+        dispatch(setPage(tabName));
       } else {
-        navigate(`/${tabName.toLowerCase()}`);
+        if (tabName == "User") {
+          if (authStatus) {
+            navigate(`/${tabName.toLowerCase()}`);
+            dispatch(setPage(tabName));
+          } else {
+            notifyLoginFirst();
+          }
+        } else {
+          navigate(`/${tabName.toLowerCase()}`);
+          dispatch(setPage(tabName));
+
+        }
       }
     } else {
       notifyStreamingWait();
@@ -51,12 +73,12 @@ function TabsNav() {
         >
           Files
         </div>
-        <div
+        {/* <div
           className={currentPage === "User" ? "active-tab" : "tab"}
           onClick={() => handleTabClick("User")}
         >
           User
-        </div>
+        </div> */}
       </div>
     </div>
   );

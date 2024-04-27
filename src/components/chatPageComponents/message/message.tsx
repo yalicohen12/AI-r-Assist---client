@@ -284,11 +284,12 @@ const RenderFetchedContent: React.FC<{
 
   // Split content into parts: code blocks and regular text
   const parts = content.split(codeBlockRegex);
+  console.log(parts)
 
   // Render code blocks and regular text
   const renderParts = () => {
     return parts.map((part, index) => {
-      if (index % 2 === 1) {
+      if (index===2) {
         // If index is odd, it's a code block
         const lang = part.split("\n")[0].trim(); // Extract language from the first line
         return (

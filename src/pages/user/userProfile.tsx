@@ -10,10 +10,17 @@ import {
   Typography,
   makeStyles,
 } from "@material-ui/core";
-import "./UserProfile.css";
+import "./userProfile.css";
 import { useState } from "react";
 import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
+import { Tabs } from "@mui/material";
+import TabsNav from "../../components/tabsNavigation/tabs";
+import { useAppDispatch, useAppSelector } from "../../state";
+import { setPage } from "../../state/pageState";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { disConnect } from "../../state/authStatusState";
+import { newConversation } from "../../state/conversationState";
 
 export default function UserProfile() {
   const [currPassword, setCurrPassword] = useState("");
@@ -21,44 +28,54 @@ export default function UserProfile() {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [submittable, setSubmittable] = useState(false);
 
-  const [ordersCount, setOrdersCount] = useState(0);
-  const [ordersSum, setOrdersSum] = useState(0);
+  const conversationsCount = useAppSelector(
+    (state) => state.countSlice.conversationCount
+  );
+
+  const filesCount = useAppSelector((state) => state.countSlice.filesCount);
+
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(
-        `http://localhost:5000/getOrdersStats/${localStorage.getItem("userId")}`
-      )
-      .then((res) => {
-        setOrdersCount(res.data.ordersCount);
-        setOrdersSum(res.data.ordersSum);
-      });
+    dispatch(setPage("User"));
   }, []);
 
   const notifyMissingFields = () => {
     toast.error("please fill all fields", {
-      position: toast.POSITION.BOTTOM_CENTER,
+      position: toast.POSITION.TOP_RIGHT,
+      theme: "dark",
       autoClose: 1000,
     });
   };
   const notifyNewPasswordError = () => {
     toast.error("new Password inputs not match ", {
-      position: toast.POSITION.BOTTOM_CENTER,
+      position: toast.POSITION.TOP_RIGHT,
+      theme: "dark",
       autoClose: 1000,
     });
   };
   const notifycurrPasswordError = () => {
     toast.error("current password incorect ", {
-      position: toast.POSITION.BOTTOM_CENTER,
+      position: toast.POSITION.TOP_RIGHT,
+      theme: "dark",
       autoClose: 1000,
     });
   };
   const notifyPasswordChanged = () => {
     toast.success("Password replaced!", {
-      position: toast.POSITION.BOTTOM_CENTER,
+      position: toast.POSITION.TOP_RIGHT,
+      theme: "dark",
       autoClose: 5000,
+    });
+  };
+
+  const notifyLogout = () => {
+    toast.info("Succsesfuly Logout", {
+      position: toast.POSITION.TOP_RIGHT,
+      theme: "dark",
+      autoClose: 3000,
     });
   };
 
@@ -70,6 +87,7 @@ export default function UserProfile() {
       padding: theme.spacing(4),
       margin: "auto",
       width: "auto",
+      backgroundColor: "#1E2A3A",
     },
     image: {
       width: 150,
@@ -83,14 +101,14 @@ export default function UserProfile() {
     },
     // New styles for the orders grid
     ordersGrid: {
-      marginTop: theme.spacing(0),
+      // marginTop: theme.spacing(0),
     },
     ordersPaper: {
-      padding: theme.spacing(4),
+      // padding: theme.spacing(4),
       width: "100%",
     },
     ordersText: {
-      marginBottom: theme.spacing(7.4 ),
+      marginBottom: theme.spacing(4.4),
       display: "flex",
       justifyContent: "flex-start", // Align the headline at the top left
       alignItems: "center", // Align text vertically
@@ -101,19 +119,18 @@ export default function UserProfile() {
       fontWeight: "bold",
     },
     marginBottom: {
-      marginBottom: theme.spacing(4),
+      // marginBottom: theme.spacing(4),
     },
     ordersHeadline: {
-      color: "blue", 
-      fontSize: 32, 
+      color: "white",
+      fontSize: 32,
       fontWeight: "bold", // Set font weight to bold
       marginBottom: theme.spacing(3), // Add spacing below the headline
     },
-  
+
     orderText: {
-      color: "#666", 
-      fontSize: 24, 
- 
+      fontSize: 24,
+      color: "white",
     },
   }));
 
@@ -138,9 +155,9 @@ export default function UserProfile() {
       return;
     }
     axios
-      .post("http://localhost:5000/changePassword", {
-        userId: localStorage.getItem("userId"),
-        currentPassword: currPassword,
+      .post("http://localhost:4000/changePassword", {
+        userID: localStorage.getItem("userID"),
+        oldPassword: currPassword,
         newPassword: newPassword,
       })
       .then(() => {
@@ -156,124 +173,200 @@ export default function UserProfile() {
       });
   }
 
+  function handleLogout() {
+    navigate("/");
+    dispatch(disConnect());
+    dispatch(newConversation());
+    localStorage.clear();
+    notifyLogout();
+  }
+
   return (
-    <div>
-      <Grid className="gridProfile" container spacing={3}>
-     <Grid item xs={12}>
-          <Paper className={classes.paper}>
-            <Grid container spacing={6}>
-              <Grid item xs={12} container justify="flex-start">
-                <Typography variant="h3">Account Info</Typography>
-              </Grid>
-              <Grid item xs={12} container>
-                <Grid
-                  item
-                  container
-                  direction="column"
-                  alignItems="flex-start"
-                  spacing={1}
-                >
-                  <Typography gutterBottom variant="h4">
-                    {localStorage.getItem("userName")}
-                  </Typography>
-                  <Typography variant="h5" color="textSecondary">
-                    Role: {localStorage.getItem("role")}
-                  </Typography>
-                  <Typography variant="h5" color="textSecondary">
-                    Email: {localStorage.getItem("email")}
+    <div className="userProfile-container">
+      <div
+        className="logContainer"
+        onClick={handleLogout}
+        style={{ position: "absolute", right: "1%", top: "1%" }}
+      >
+        <LogoutIcon
+          className="logouticon"
+          style={{ cursor: "pointer" }}
+        ></LogoutIcon>
+        <div className="logTxt"> Logout</div>
+      </div>
+      <TabsNav></TabsNav>
+      <div className="userProfile-data">
+        <Grid
+          className="gridProfile"
+          container
+          spacing={2}
+          style={{ height: "200px" }}
+        >
+          <Grid item xs={12}>
+            <Paper
+              className={classes.paper}
+              style={{ backgroundColor: "#1E2A3A" }}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={12} container>
+                  <Typography className="typo" variant="h4">
+                    Account Info
                   </Typography>
                 </Grid>
+                <Grid item xs={12} container>
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    alignItems="flex-start"
+                    spacing={1}
+                  >
+                    <Typography className="typo" gutterBottom variant="h5">
+                      user name: {localStorage.getItem("userName")}
+                    </Typography>
+                    <Typography className="typo" variant="h5">
+                      created at: {new Date(Date.now()).toLocaleDateString()}
+                    </Typography>
+                  </Grid>
+                </Grid>
               </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
+            </Paper>
+          </Grid>
 
-        <Grid item>
-          <Paper className={classes.paper}>
-            <Grid container direction="column" spacing={4}>
-              <Grid container justify="flex-start">
-                <Typography variant="h4">Password Management</Typography>
+          <Grid item>
+            <Paper className={classes.paper}>
+              <Grid container direction="column" spacing={2}>
+                <Grid container justify="flex-start">
+                  <Typography className="typo" variant="h5">
+                    Password Management
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <TextField
+                    size="small"
+                    InputLabelProps={{
+                      style: { color: "grey", fontSize: "1.1rem" }, // Set the color of the label text to white
+                    }}
+                    InputProps={{
+                      style: { color: "white", fontSize: "1.6rem" },
+                    }}
+                    className="typo"
+                    label="Current Password"
+                    value={currPassword}
+                    variant="outlined"
+                    type="password"
+                    style={{ color: "white" }}
+                    fullWidth
+                    onChange={(e) => setCurrPassword(e.target.value)}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    InputLabelProps={{
+                      style: { color: "grey", fontSize: "1.1rem" }, // Set the color of the label text to white
+                    }}
+                    InputProps={{
+                      style: { color: "white", fontSize: "1.6rem" },
+                    }}
+                    size="small"
+                    label="New Password"
+                    value={newPassword}
+                    variant="outlined"
+                    type="password"
+                    style={{ width: "100%", color: "white" }}
+                    // fullWidth
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    size="small"
+                    InputLabelProps={{
+                      style: { color: "grey", fontSize: "1.1rem" }, // Set the color of the label text to white
+                    }}
+                    InputProps={{
+                      style: { color: "white", fontSize: "1.6rem" },
+                    }}
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    label="Confirm New Password"
+                    variant="outlined"
+                    type="password"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid container justify="flex-end">
+                  <Button
+                    disabled={submittable}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                  >
+                    Submit
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item>
-                <TextField
-                  label="Current Password"
-                  value={currPassword}
-                  variant="outlined"
-                  type="password"
-                  fullWidth
-                  onChange={(e) => setCurrPassword(e.target.value)}
-                />
+            </Paper>
+          </Grid>
+          <Grid item>
+            <Paper className={`${classes.paper} ${classes.ordersPaper}`}>
+              <Grid
+                container
+                direction="column"
+                spacing={0}
+                className={classes.ordersGrid}
+              >
+                <Grid container>
+                  <Typography
+                    variant="h5"
+                    style={{
+                      fontFamily: "Arial",
+                      color: "white",
+                      fontSize: "1.7rem",
+                      marginBottom: "2rem",
+                    }}
+                  >
+                    App usage
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography
+                    gutterBottom
+                    variant="h4"
+                    className={`${classes.ordersText} ${classes.orderText}`}
+                  >
+                    Conversation placed: {conversationsCount}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography
+                    gutterBottom
+                    variant="h4"
+                    className={`${classes.ordersText} ${classes.orderText}`}
+                  >
+                    Files placed: {filesCount}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography gutterBottom variant="h4">
+                    <Button
+                      style={{ marginTop: "4.5rem" }}
+                      className={classes.ordersButton}
+                      variant="contained"
+                      onClick={() => {
+                        navigate("/");
+                      }}
+                    >
+                      View All Chats
+                    </Button>
+                  </Typography>
+                </Grid>
+                <Grid container justify="flex-end"></Grid>
               </Grid>
-              <Grid item>
-                <TextField
-                  label="New Password"
-                  value={newPassword}
-                  variant="outlined"
-                  type="password"
-                  style={{ width: "100%" }} // Set the width to 100%
-                  // fullWidth
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  value={confirmNewPassword}
-                  onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  label="Confirm New Password"
-                  variant="outlined"
-                  type="password"
-                  fullWidth
-                />
-              </Grid>
-              <Grid container justify="flex-end">
-                <Button
-                  disabled={submittable}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSubmit}
-                >
-                  Submit
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid item>
-        <Paper className={`${classes.paper} ${classes.ordersPaper}`}>
-  <Grid container direction="column" spacing={4} className={classes.ordersGrid}>
-    <Grid container>
-      <Typography variant="h4" className={`${classes.ordersText} ${classes.ordersHeadline}`}>
-        Orders Data
-      </Typography>
-    </Grid>
-    <Grid item>
-      <Typography gutterBottom variant="h4" className={`${classes.ordersText} ${classes.orderText}`}>
-        Orders placed: {ordersCount}
-      </Typography>
-    </Grid>
-    <Grid item>
-      <Typography gutterBottom variant="h4" className={`${classes.ordersText} ${classes.orderText}`}>
-        Total amount spent: {ordersSum}$
-      </Typography>
-    </Grid>
-    <Grid item className={classes.marginBottom}>
-      <Typography gutterBottom variant="h4">
-        <Button
-          className={classes.ordersButton}
-          variant="contained"
-          onClick={() => {
-            navigate("/ordersView");
-          }}
-        >
-          View All Orders
-        </Button>
-      </Typography>
-    </Grid>
-    <Grid container justify="flex-end"></Grid>
-  </Grid>
-</Paper>
-        </Grid>
-      </Grid>
+      </div>
     </div>
   );
 }

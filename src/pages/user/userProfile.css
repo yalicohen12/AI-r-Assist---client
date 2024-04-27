@@ -1,0 +1,22 @@
+.userProfile-container {
+  background-color: rgb(4, 1, 20);
+  height: 100vh;
+  width: 100vw;
+}
+
+.userProfile-data {
+  /* margin: 0 auto; */
+  margin-top: 1rem;
+  margin-left: 5rem;
+  /* overflow: auto; */
+}
+
+.gridProfile {
+  max-width: 90%; /* Set a maximum width for the grid */
+  margin: 0 1rem; /* Center the grid horizontally */
+  /* background-color: rgb(18, 6, 45); */
+}
+
+.typo {
+  color: white;
+}

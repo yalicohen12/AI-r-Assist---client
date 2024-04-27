@@ -25,6 +25,11 @@ import { newConversation } from "../../state/conversationState";
 import { useNavigate } from "react-router-dom";
 import { setPage } from "../../state/pageState";
 import { Fileobj } from "../../types";
+import { updatefilesCount } from "../../state/countState";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LoginIcon from "@mui/icons-material/Login";
+import { disConnect } from "../../state/authStatusState";
+import LoginModal from "../auth/loginModal";
 
 export default function FileDrive() {
   const [files, setFiles] = useState<Fileobj[]>([]);
@@ -37,9 +42,13 @@ export default function FileDrive() {
 
   const [chatFiles, setChatFiles] = useState<Fileobj[]>([]);
 
+  const authStatus = useAppSelector((state) => state.authSlice.isAuth);
+
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
+
+  const [isOpen, setIsOpen] = useState(false);
 
   const notify = () => {
     toast.success("file deleted", {
@@ -61,6 +70,8 @@ export default function FileDrive() {
 
       const chatFilesList = filesList.filter((file) => file.chatIndicator);
       setChatFiles(chatFilesList);
+
+      dispatch(updatefilesCount(filesList.length));
     };
 
     fetchFiles();
@@ -85,7 +96,7 @@ export default function FileDrive() {
 
     const chatFilesList = updatedFiles.filter((file) => file.chatIndicator);
     setChatFiles(chatFilesList);
-    
+
     // notify();
     deleteFile(currentFileID);
     notify();
@@ -112,8 +123,40 @@ export default function FileDrive() {
     await downloadFile(fileID, fileName);
   }
 
+  function handleLogout(): void {
+    setUploadedFiles([]);
+    setChatFiles([]);
+    dispatch(disConnect());
+    dispatch(newConversation());
+    localStorage.clear();
+  }
+
   return (
     <div className="filePage">
+      <LoginModal isOpen={isOpen} onClose={() => setIsOpen(false)}></LoginModal>
+      <div
+        className="logindicator"
+        style={{ position: "absolute", right: "1%" }}
+      >
+        <IconButton className="icon">
+          {authStatus && (
+            <div className="logContainer" onClick={handleLogout}>
+              <LogoutIcon className="logouticon"></LogoutIcon>
+              <div className="logTxt"> Logout</div>
+            </div>
+          )}
+          {!authStatus && (
+            <div className="logContainer" onClick={() => setIsOpen(true)}>
+              <div className="logTxt">Login</div>
+              <LoginIcon
+                onClick={() => setIsOpen(true)}
+                className="logouticon"
+                color="primary"
+              ></LoginIcon>
+            </div>
+          )}
+        </IconButton>
+      </div>
       {confirmDelete && (
         <ConfirmModal
           text="delete this File? it won't be available any longer"

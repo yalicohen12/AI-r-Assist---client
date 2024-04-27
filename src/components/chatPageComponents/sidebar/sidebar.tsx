@@ -16,6 +16,8 @@ import ConfirmModal from "../../confirmModal/confirmModal";
 import { text } from "stream/consumers";
 import LoginModal from "../../../pages/auth/loginModal";
 import { stat } from "fs";
+import { updateConversationCount } from "../../../state/countState";
+import { useNavigate } from "react-router-dom";
 
 interface ConversationProps {
   title: string;
@@ -40,10 +42,12 @@ export default function Sidebar() {
     (state) => state.conversationSlice.fetchedMessages
   );
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchConversations = async () => {
       if (localStorage.getItem("userID") && fetchedMessages && conID) {
-        console.log("regeting convs")
+        console.log("regeting convs");
         try {
           const conversationsHistory = await getConversations();
           setConversations(conversationsHistory);
@@ -62,6 +66,7 @@ export default function Sidebar() {
         try {
           const conversationsHistory = await getConversations();
           setConversations(conversationsHistory);
+          dispatch(updateConversationCount(conversationsHistory.length));
         } catch (error) {
           console.error("Error fetching conversations:", error);
         }
@@ -139,13 +144,22 @@ export default function Sidebar() {
             <SearchIcon style={{ color: "white" }}></SearchIcon>
           </IconButton>
           <input
-            placeholder="search"
+            placeholder="filter Chats"
             className="search-box"
             onChange={(e) => setSearchTerm(e.target.value)}
           ></input>
         </div>
       )}
       <div className="sb-conversations" style={{ overflowY: "auto" }}>
+        <div
+          className="contain"
+          style={{ display: "flex", flexDirection: "column" }}
+        >
+          <label htmlFor="sb-conversations" className="chat-headline">
+            Chat History
+          </label>
+          <div style={{ borderBottom: "1px solid white", width: "100%" }}></div>
+        </div>
         {filteredConversations.map((conversation) => {
           return (
             <ConversationItem
@@ -172,6 +186,7 @@ export default function Sidebar() {
           marginBottom: "1rem",
           cursor: "pointer",
         }}
+        onClick={() => navigate("/User")}
       >
         <IconButton>
           <PersonIcon style={{ color: "white", fontSize: "2rem" }}></PersonIcon>
