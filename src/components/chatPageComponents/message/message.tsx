@@ -41,14 +41,15 @@ const DisplayMessage: React.FC<MessageProps> = ({
   const messageState = useAppSelector(
     (state) => state.currentMessageSlice.messageID
   );
+
   const [accumulatedContent, setAccumulatedContent] = useState<string>("");
   const [socket, setSocket] = useState<Socket | null>(null); // Typing socket state
   const [loading, setIsLoading] = useState(false);
   const [streaming, setSteraming] = useState(false);
 
-  const [regenrateFlag, setregenerateFlag] = useState(false);
+  const [currentChunk, setCurrentChunk] = useState<string>("");
 
-  const [valueState, setValueState] = useState<string>(value);
+  const [regenrateFlag, setregenerateFlag] = useState(false);
 
   const conID = useAppSelector(
     (state) => state.conversationSlice.conversationID
@@ -59,10 +60,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
   const [inCodeBlock, setIsOnCodeBlock] = useState(false);
 
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    setAccumulatedContent("");
-  }, []);
 
   const [isCopied, setCopied] = useState(false);
 
@@ -84,7 +81,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
       }
     }
     return () => {
-      // console.log("unMout");
       setAccumulatedContent("");
     };
   }, []);
@@ -104,12 +100,14 @@ const DisplayMessage: React.FC<MessageProps> = ({
       console.error("Error:", error.message);
     });
 
-    newSocket.on("generated_text", (textChunk) => {
+    newSocket.on("generated_text", (textChunk): void => {
       setIsLoading(false);
       if (!streaming) {
         setSteraming(true);
       }
+
       setAccumulatedContent((prevContent) => prevContent + textChunk);
+      setCurrentChunk(textChunk);
       // setValueState((prevContent) => prevContent + textChunk)
     });
 
@@ -117,7 +115,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
       dispatch(turnStreamOff());
       console.log("ending");
       if (regenrateFlag) {
-        setValueState(accumulatedContent);
       }
       setSteraming(false);
       setregenerateFlag(false);
@@ -150,8 +147,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
       });
     setCopied(true);
   };
-
-  function DeleteMessage() {}
 
   async function handleRestartClick() {
     setIsLoading(true);
@@ -198,19 +193,18 @@ const DisplayMessage: React.FC<MessageProps> = ({
         <div className="msg-sender">{sender}</div>
       </div>
       <div className={isUserSender ? "message-content" : "bot-content"}>
-        {accumulatedContent && (
+        {accumulatedContent && streaming && (
           <RenderContent
             content={accumulatedContent}
-            inCodeBlock={inCodeBlock}
             setIsOnCodeBlock={setIsOnCodeBlock}
+            inCodeBlock={inCodeBlock}
           />
         )}
+        {accumulatedContent && !streaming && (
+          <RenderFetchedContent content={accumulatedContent} />
+        )}
+
         {!regenrateFlag && !accumulatedContent && value != "you fail" && (
-          // <RenderContent
-          //   content={value}
-          //   inCodeBlock={inCodeBlock}
-          //   setIsOnCodeBlock={setIsOnCodeBlock}
-          // />
           <RenderFetchedContent content={value}></RenderFetchedContent>
         )}
         {loading && <LoadingSpinner></LoadingSpinner>}
@@ -280,37 +274,38 @@ const DisplayMessage: React.FC<MessageProps> = ({
 const RenderFetchedContent: React.FC<{
   content: string;
 }> = ({ content }) => {
-  const codeBlockRegex = /```([\s\S]*?)```/g;
+  // Regular expression to match code blocks
+  const codeBlockRegex = /```([^`]+)```/g;
 
   // Split content into parts: code blocks and regular text
   const parts = content.split(codeBlockRegex);
-  console.log(parts)
 
   // Render code blocks and regular text
   const renderParts = () => {
     return parts.map((part, index) => {
-      if (index===2) {
-        // If index is odd, it's a code block
+      if (index % 2 === 0) {
+        // Regular text
+        return <div key={index}>{part}</div>;
+      } else {
+        // Code block
         const lang = part.split("\n")[0].trim(); // Extract language from the first line
+        const code = part.replace(/^\s*[\r\n]/g, ""); // Remove leading newline
         return (
           <SyntaxHighlighter
+            key={index}
+            language={lang || "plaintext"}
+            style={a11yDark}
             customStyle={{
-              backgroundColor: "#282A3A",
+              backgroundColor: "#1f1f1f",
               padding: "0.5rem",
               borderRadius: "1rem",
               margin: "1rem 0.2rem",
             }}
-            key={index}
-            language="javascript"
-            style={a11yDark}
             wrapLongLines
           >
-            {part.trim()}
+            {code}
           </SyntaxHighlighter>
         );
-      } else {
-        // If index is even, it's regular text
-        return <div key={index}>{part}</div>;
       }
     });
   };
@@ -320,52 +315,16 @@ const RenderFetchedContent: React.FC<{
 
 const RenderContent: React.FC<{
   content: string;
-  inCodeBlock: boolean;
   setIsOnCodeBlock: (is: boolean) => void;
-}> = ({ content, inCodeBlock, setIsOnCodeBlock }) => {
-  if (inCodeBlock) {
-    if (content.includes("```")) {
-      setIsOnCodeBlock(false);
-    }
-    return (
-      <div>{content}</div>
-      // <SyntaxHighlighter
-      //   customStyle={{
-      //     // backgroundColor: "#282A3A",
-      //     padding: "0.1rem",
-      //     borderRadius: "20px",
-      //   }}
-      //   language={"python"}
-      //   style={darcula}
-      // >
-      //   {content}
-      // </SyntaxHighlighter>
-    );
-  } else if (!inCodeBlock && content.includes("```")) {
-    setIsOnCodeBlock(true);
-    return (
-      // <SyntaxHighlighter
-      //   customStyle={{
-      //     backgroundColor: "#282A3A",
-      //     padding: "0.5rem",
-      //     borderRadius: "20px",
-      //   }}
-      //   language={"python"}
-      //   style={darcula}
-      // >
-      //   {content}
-      // </SyntaxHighlighter>
-      <div>{content}</div>
-    );
-  } else {
-    return (
-      <div
-        dangerouslySetInnerHTML={{
-          __html: content.replace(/\n/g, "<br />"),
-        }}
-      />
-    );
-  }
+  inCodeBlock: boolean;
+}> = ({ content, setIsOnCodeBlock, inCodeBlock }) => {
+  // if(content.includes("```")) {
+  //   if(inCodeBlock) {
+
+  //   }
+  // }
+  const formattedText = content.replace(/\n/g, "<br/>");
+  return <div dangerouslySetInnerHTML={{ __html: formattedText }} />;
 };
 
 export default DisplayMessage;

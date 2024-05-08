@@ -84,12 +84,12 @@ export default function SaveChatModal({
           </IconButton>
         </div>
         <div className="saveChatForm">
-          <div className="hedline" style={{ color: "white" }}>
+          <div className="hedline" style={{ color: "#80d41c" }}>
             Save Chat to File
           </div>
           <div className="file-title">
             <label
-              style={{ color: "white" }}
+              style={{ color: "white", fontSize: "large" }}
               className="modaltxt"
               htmlFor="fileTitleInput"
             >
@@ -108,7 +108,7 @@ export default function SaveChatModal({
           <FormControl>
             <FormLabel
               id="demo-row-radio-buttons-group-label"
-              style={{ color: "white" }}
+              style={{ color: "white", fontSize: "large" }}
             >
               File type
             </FormLabel>
@@ -126,7 +126,14 @@ export default function SaveChatModal({
           </FormControl>
 
           <div className="file-title">
-            <div className="modaltxt" style={{ color: "white" }}>
+            <div
+              className="modaltxt"
+              style={{
+                color: "white",
+                marginTop: "1rem",
+                fontSize: "large",
+              }}
+            >
               Add an introduction
             </div>
             <textarea
@@ -136,7 +143,7 @@ export default function SaveChatModal({
               onChange={(e) => setDummyText(e.target.value)}
               className="textarea"
               cols={50}
-              style={{ fontSize: "1rem" }}
+              style={{ color:"white" ,fontSize: "1rem", backgroundColor: "transparent" }}
             />
           </div>
           <div className="Save-Chat-Btns">

@@ -114,7 +114,15 @@ export default function FileDrive() {
     return (
       <div className="filePage">
         <TabsNav></TabsNav>
-        <div className="no-file">No Files Yet</div>
+        <div className="no-Files">
+          <div style={{ color: "white", fontSize: "1.5rem" }}>No Files yet yet</div>
+          <img
+            src={process.env.PUBLIC_URL + "/img/folder.png"}
+            // className="userIcon"
+            className="noFileIcon"
+            alt="Bamza 108"
+          />
+        </div>
       </div>
     );
   }

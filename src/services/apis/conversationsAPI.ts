@@ -16,9 +16,15 @@ interface ConversationsList {
   conversationID: string;
 }
 
+const instance = axios.create({
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+
 export async function getConversations(): Promise<ConversationsList[]> {
   try {
-    const conversationsResponse = await axios.post(
+    const conversationsResponse = await instance.post(
       "http://localhost:4000/getConversations",
       {
         userID: localStorage.getItem("userID"),
@@ -33,15 +39,12 @@ export async function getConversations(): Promise<ConversationsList[]> {
 }
 
 export async function getConversation() {
-  // const currentConversationID =
-  //   store.getState().conversationSlice.conversationID;
-  // const conversationID = currentConversationID;
   const conversationID = localStorage.getItem("conversationID");
   if (!conversationID) {
     return "missing conv id";
   }
   try {
-    const conversation = await axios.post(
+    const conversation = await instance.post(
       "http://localhost:4000/getConversation",
       {
         conversationID: conversationID,
@@ -72,7 +75,7 @@ export async function createConversation(
       formData.append("fileName", fileName);
       formData.append("modelStatus", modelStatus);
 
-      const conversation = await axios.post(
+      const conversation = await instance.post(
         "http://localhost:4000/createConversation",
         formData,
         {
@@ -89,7 +92,7 @@ export async function createConversation(
       throw error;
     }
   } else {
-    const conversation = await axios.post(
+    const conversation = await instance.post(
       "http://localhost:4000/createConversation",
       {
         userID: userID,
@@ -130,7 +133,7 @@ export async function uploadToConversation(
       formData.append("fileName", fileName);
       formData.append("modelStatus", modelStatus);
 
-      const conversation = await axios.post(
+      const conversation = await instance.post(
         "http://localhost:4000/postToConversation",
         formData,
         {
@@ -146,7 +149,7 @@ export async function uploadToConversation(
     }
   } else {
     try {
-      const conversation = await axios.post(
+      const conversation = await instance.post(
         "http://localhost:4000/postToConversation",
         {
           userID: userID,
@@ -199,7 +202,7 @@ export async function deleteConversation(conID: string) {
   console.log("deleting in api");
   if (localStorage.getItem("userID")) {
     try {
-      axios.post("http://localhost:4000/deleteConversation", {
+      instance.post("http://localhost:4000/deleteConversation", {
         userID: localStorage.getItem("userID"),
         conversationID: conID,
       });
@@ -214,7 +217,7 @@ export async function regenerateResponse(index: number, modelStatus: string) {
     localStorage.getItem("conversationID")
   ) {
     try {
-      const res = await axios.post("http://localhost:4000/regenerateResponse", {
+      const res = await instance.post("http://localhost:4000/regenerateResponse", {
         userID: localStorage.getItem("userID"),
         conversationID: localStorage.getItem("conversationID"),
         index: index,
@@ -231,7 +234,7 @@ export async function regenerateResponse(index: number, modelStatus: string) {
 export async function deleteMsg(index: number, conID: string) {
   if (localStorage.getItem("userID")) {
     try {
-      axios.post("http://localhost:4000/deleteMessage", {
+      instance.post("http://localhost:4000/deleteMessage", {
         userID: localStorage.getItem("userID"),
         conversationID: conID,
         index: index,
@@ -250,7 +253,7 @@ export async function saveConversation(
 ) {
   if (localStorage.getItem("userID")) {
     try {
-      axios.post("http://localhost:4000/saveConversationFile", {
+      instance.post("http://localhost:4000/saveConversationFile", {
         userID: localStorage.getItem("userID"),
         conversationID: conID,
         title: title,
@@ -270,7 +273,7 @@ export async function renameConversation(
 ) {
   if (localStorage.getItem("userID")) {
     try {
-      await axios.post("http://localhost:4000/renameConversation", {
+      await instance.post("http://localhost:4000/renameConversation", {
         userID: localStorage.getItem("userID"),
         conversationID: conversationID,
         newName: newName,

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./sidebar.css";
 import NightlightRoundIcon from "@mui/icons-material/NightlightRound";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 import { AccountCircle, Height } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import ConversationItem from "../conversationItem/conversationItem";
@@ -34,6 +34,8 @@ export default function Sidebar() {
     ConversationProps[]
   >([]);
 
+  const [hasFetchedYet, sethadFetchedYet] = useState(false);
+
   const conID = useAppSelector(
     (state) => state.conversationSlice.conversationID
   );
@@ -57,6 +59,7 @@ export default function Sidebar() {
       }
     };
     fetchConversations();
+    sethadFetchedYet(true);
   }, [conID]);
 
   //fetches conversation
@@ -75,6 +78,7 @@ export default function Sidebar() {
 
     if (!conversations.length) {
       fetchConversations();
+      sethadFetchedYet(true);
     }
   }, [conversations, authStatus]);
 
@@ -123,13 +127,18 @@ export default function Sidebar() {
   return (
     <div className="sidebar-container">
       <div className="sb-head">
-        <IconButton>
-          <img
-            src={process.env.PUBLIC_URL + "/img/Bamza_108.png"}
-            className="img108"
-            alt="Bamza 108"
-          />
-        </IconButton>
+        <Tooltip
+          arrow
+          title="Unit 108 is a D level maintenance and development unit for electronics, softwere ICT and weapons in the israeli Air Froces  "
+        >
+          <IconButton>
+            <img
+              src={process.env.PUBLIC_URL + "/img/Bamza_108.png"}
+              className="img108"
+              alt="Bamza 108"
+            />
+          </IconButton>
+        </Tooltip>
         <div className="pro-name"> AI-r Assist</div>
       </div>
       <div className="sb-new" onClick={handlenewConversation}>
@@ -150,28 +159,44 @@ export default function Sidebar() {
           ></input>
         </div>
       )}
-      <div className="sb-conversations" style={{ overflowY: "auto" }}>
-        <div
-          className="contain"
-          style={{ display: "flex", flexDirection: "column" }}
-        >
-          <label htmlFor="sb-conversations" className="chat-headline">
-            Chat History
-          </label>
-          <div style={{ borderBottom: "1px solid white", width: "100%" }}></div>
+      {hasFetchedYet && filteredConversations.length === 0 && (
+        <div className="no-conversations">
+          <div style={{ color: "white", fontSize: "1.5rem" }}>No Chats yet</div>
+          <img
+            src={process.env.PUBLIC_URL + "/img/empty.png"}
+            // className="userIcon"
+            className="noChatIcon"
+            alt="Bamza 108"
+          />
         </div>
-        {filteredConversations.map((conversation) => {
-          return (
-            <ConversationItem
-              key={conversation.conversationID}
-              title={conversation.title}
-              timeStamp={conversation.timestamp.split("T")[0]}
-              conversationID={conversation.conversationID}
-              deleteConversationCall={deleteConversationCall}
-            />
-          );
-        })}
-      </div>
+      )}
+      {filteredConversations.length > 0 && (
+        <div className="sb-conversations" style={{ overflowY: "auto" }}>
+          <div
+            className="contain"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            <label htmlFor="sb-conversations" className="chat-headline">
+              Chat History
+            </label>
+            <div
+              style={{ borderBottom: "1px solid white", width: "100%" }}
+            ></div>
+          </div>
+
+          {filteredConversations.map((conversation) => {
+            return (
+              <ConversationItem
+                key={conversation.conversationID}
+                title={conversation.title}
+                timeStamp={conversation.timestamp.split("T")[0]}
+                conversationID={conversation.conversationID}
+                deleteConversationCall={deleteConversationCall}
+              />
+            );
+          })}
+        </div>
+      )}
 
       <div
         className="userIndicator"

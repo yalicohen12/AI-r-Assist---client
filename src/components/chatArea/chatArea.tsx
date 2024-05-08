@@ -146,6 +146,18 @@ export default function ChatArea() {
       reader.readAsText(file); // Read the file data as text
     }
   };
+  const [textareaHeight, setTextareaHeight] = useState("0.2rem");
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const resizeTextArea = () => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height =
+        Math.min(170, textAreaRef.current.scrollHeight) + "px";
+    }
+  };
+
+  useEffect(resizeTextArea, [message]);
 
   // gets the conversation
   async function fetchConversationMessages() {
@@ -487,36 +499,13 @@ export default function ChatArea() {
               className="search-box"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              ref={textAreaRef}
               onKeyDown={handleKeyPress}
               disabled={isApiProcessing}
-              style={{ resize: "none" }}
+              rows={1}
+              style={{ resize: "none" }} // Apply dynamic height
             />
-            <label htmlFor="fileInput">
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Tooltip
-                  title={
-                    uploadedFile || currentFileChat
-                      ? "Change File"
-                      : "Upload File"
-                  }
-                  arrow
-                >
-                  <FileUploadIcon
-                    style={{
-                      fontSize: "2.2rem",
-                      color: "#008188",
-                    }}
-                  ></FileUploadIcon>
-                </Tooltip>
-              </div>
-              <input
-                type="file"
-                id="fileInput"
-                accept=".txt, .doc, .docx, .py, .js"
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              />
-            </label>
+
             <Tooltip title="send" arrow>
               <IconButton
                 disabled={isApiProcessing}
@@ -527,13 +516,45 @@ export default function ChatArea() {
             </Tooltip>
           </div>
 
+          <label htmlFor="fileInput" className="">
+            <div
+              className="lab"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Tooltip
+                title={
+                  uploadedFile || currentFileChat
+                    ? "Change File"
+                    : "Upload File"
+                }
+                arrow
+              >
+                <img
+                  src={process.env.PUBLIC_URL + "/img/file.png"}
+                  style={{ height: "2.2rem" }}
+                ></img>
+              </Tooltip>
+              <input
+                type="file"
+                id="fileInput"
+                accept=".txt, .doc, .docx, .py, .js"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+            </div>
+          </label>
+
           {messages.length > 1 && (
             <Tooltip title="Save Chat" arrow>
               <IconButton
                 onClick={() => setIsSaveChatOpen(true)}
                 sx={{
-                  height: "3rem",
-                  width: "3rem",
+                  height: "3.5rem",
+                  width: "3.5rem",
                   backgroundColor: "#1F012E",
                   "&:hover": {
                     backgroundColor: "#250635",
@@ -541,7 +562,7 @@ export default function ChatArea() {
                 }}
                 className="saveChat-icon"
               >
-                <SaveIcon color="primary"></SaveIcon>
+                <SaveIcon fontSize="large" color="primary"></SaveIcon>
               </IconButton>
             </Tooltip>
           )}
