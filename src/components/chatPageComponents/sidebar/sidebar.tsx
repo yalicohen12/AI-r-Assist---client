@@ -46,10 +46,27 @@ export default function Sidebar() {
 
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const fetchConversations = async () => {
+  //     console.log("refering to bring")
+  //     if (localStorage.getItem("userID")) {
+  //       console.log("regeting convs");
+  //       try {
+  //         const conversationsHistory = await getConversations();
+  //         setConversations(conversationsHistory);
+  //       } catch (error) {
+  //         console.error("Error fetching conversations:", error);
+  //       }
+  //     }
+  //   };
+  //   fetchConversations();
+  //   sethadFetchedYet(true);
+  // }, []);
+
   useEffect(() => {
     const fetchConversations = async () => {
-      if (localStorage.getItem("userID") && fetchedMessages && conID) {
-        console.log("regeting convs");
+      if (localStorage.getItem("userID")) {
+        // console.log("regeting convs");
         try {
           const conversationsHistory = await getConversations();
           setConversations(conversationsHistory);
@@ -60,27 +77,27 @@ export default function Sidebar() {
     };
     fetchConversations();
     sethadFetchedYet(true);
-  }, [conID]);
+  }, [authStatus, conID]);
 
   //fetches conversation
-  useEffect(() => {
-    const fetchConversations = async () => {
-      if (localStorage.getItem("userID")) {
-        try {
-          const conversationsHistory = await getConversations();
-          setConversations(conversationsHistory);
-          dispatch(updateConversationCount(conversationsHistory.length));
-        } catch (error) {
-          console.error("Error fetching conversations:", error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchConversations = async () => {
+  //     if (localStorage.getItem("userID")) {
+  //       try {
+  //         const conversationsHistory = await getConversations();
+  //         setConversations(conversationsHistory);
+  //         dispatch(updateConversationCount(conversationsHistory.length));
+  //       } catch (error) {
+  //         console.error("Error fetching conversations:", error);
+  //       }
+  //     }
+  //   };
 
-    if (!conversations.length) {
-      fetchConversations();
-      sethadFetchedYet(true);
-    }
-  }, [conversations, authStatus]);
+  //   if (!conversations.length) {
+  //     fetchConversations();
+  //     sethadFetchedYet(true);
+  //   }
+  // }, [conversations, authStatus , conID]);
 
   // filters conversation by search
   useEffect(() => {
@@ -131,13 +148,19 @@ export default function Sidebar() {
           arrow
           title="Unit 108 is a D level maintenance and development unit for electronics, softwere ICT and weapons in the israeli Air Froces  "
         >
-          <IconButton>
-            <img
-              src={process.env.PUBLIC_URL + "/img/Bamza_108.png"}
-              className="img108"
-              alt="Bamza 108"
-            />
-          </IconButton>
+          <a
+            href="https://www.iaf.org.il/9325-52786-he/IAF.aspx"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconButton>
+              <img
+                src={process.env.PUBLIC_URL + "/img/Bamza_108.png"}
+                className="img108"
+                alt="Bamza 108"
+              />
+            </IconButton>
+          </a>
         </Tooltip>
         <div className="pro-name"> AI-r Assist</div>
       </div>

@@ -40,6 +40,13 @@ import { clearFile, setFile } from "../../state/fileState";
 import { setPage } from "../../state/pageState";
 import { turnStreamOff, turnStreamOn } from "../../state/streamingStatus";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import {
+  FileCard,
+  ExtFile,
+  FilesUiProvider,
+  FileMosaic,
+} from "@files-ui/react";
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -53,6 +60,12 @@ export default function ChatArea() {
   const fetchaedMsgs = useAppSelector(
     (state) => state.conversationSlice.fetchedMessages
   );
+
+  const streamingStatus = useAppSelector(
+    (state) => state.streamingSlice.isStreaming
+  );
+
+  const [rows, setRows] = useState(1);
 
   const importedFileName = useAppSelector((state) => state.fileSlice.fileName);
 
@@ -136,6 +149,7 @@ export default function ChatArea() {
         } else {
           console.error("Event target is null.");
         }
+        // resizeTextArea();
       };
 
       reader.onerror = () => {
@@ -145,11 +159,14 @@ export default function ChatArea() {
 
       reader.readAsText(file); // Read the file data as text
     }
+    // addOneRow();
   };
+
   const [textareaHeight, setTextareaHeight] = useState("0.2rem");
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const resizeTextArea = () => {
+    console.log("resizeng");
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "auto";
       textAreaRef.current.style.height =
@@ -157,7 +174,7 @@ export default function ChatArea() {
     }
   };
 
-  useEffect(resizeTextArea, [message]);
+  useEffect(resizeTextArea, [message, currentFileChat, importedFileName]);
 
   // gets the conversation
   async function fetchConversationMessages() {
@@ -183,6 +200,7 @@ export default function ChatArea() {
   // handles scroll down when new message
   useEffect(() => {
     if (messages.length != 0) {
+
       handleScrollDown();
     }
   }, [messages]);
@@ -241,13 +259,15 @@ export default function ChatArea() {
 
     try {
       let isItNew = false;
-      if (localStorage.getItem("conversationID") == "") {
+      if (
+        !localStorage.getItem("conversationID") ||
+        localStorage.getItem("conversationID") == ""
+      ) {
         isItNew = true;
       }
 
       console.log(isItNew);
 
-      const currentTimestamp = Date.now() / 1000;
       const msgID = generateMessageID();
       dispatch(setMessageID(msgID));
       handleScrollDown();
@@ -267,7 +287,7 @@ export default function ChatArea() {
           <DisplayMessage
             sender="LLama"
             value={response.aiResponse}
-            messageIndex={currentTimestamp}
+            messageIndex={messages.length}
           />
         );
         dispatch(turnStreamOff());
@@ -305,6 +325,7 @@ export default function ChatArea() {
     if (isChecked && uploadedFile) {
       setUploadedFile(null);
     }
+    handleScrollDown();
   }
 
   const deleteMessage = (messageID: number) => {
@@ -330,10 +351,15 @@ export default function ChatArea() {
   }
 
   function handleScrollDown(): void {
-    const messagesDiv = document.getElementById("messages");
-    if (messagesDiv) {
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    // const messagesDiv = document.getElementById("messages");
+    // if (messagesDiv) {
+    //   messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    // }
+    const chatArea = document.querySelector(".msgs");
+    if (chatArea) {
+      chatArea.scrollTop = chatArea.scrollHeight;
     }
+    // console.log("in");
   }
 
   function handleLogout(): void {
@@ -368,9 +394,11 @@ export default function ChatArea() {
         <div style={{ float: "left", marginTop: "1%", marginLeft: "0.5rem" }}>
           <ModelDropdown />
         </div>
-        <div style={{ margin: "0 auto" }}>
-          <TabsNav />
-        </div>
+        {authStatus && (
+          <div style={{ margin: "0 auto" }}>
+            <TabsNav />
+          </div>
+        )}
         <div style={{ marginLeft: "auto" }}></div>{" "}
         <div className="chat-icons">
           <div className="mode-icon">
@@ -450,7 +478,7 @@ export default function ChatArea() {
         </div>
       )}
       <div className="btns">
-        {authStatus && currentFileChat && (
+        {/* {authStatus && currentFileChat && (
           <div className="saveChatArea">
             <div className="fileName"> {currentFileChat}</div>
             <Tooltip title={isChecked ? "Cancel File usage" : "Use File"} arrow>
@@ -491,7 +519,7 @@ export default function ChatArea() {
               ></CloseIcon>
             </IconButton>
           </div>
-        )}
+        )} */}
         <div className="chat-tail">
           <div className="text-input-area">
             <textarea
@@ -501,14 +529,37 @@ export default function ChatArea() {
               onChange={(e) => setMessage(e.target.value)}
               ref={textAreaRef}
               onKeyDown={handleKeyPress}
-              disabled={isApiProcessing}
+              // disabled={streamingStatus}
               rows={1}
               style={{ resize: "none" }} // Apply dynamic height
             />
+            {authStatus && currentFileChat && (
+              <div style={{ marginBottom: "1.2rem" }}>
+                <FilesUiProvider config={{ darkMode: true }}>
+                  <FileMosaic
+                    name={currentFileChat}
+                    type="text/plain"
+                    onDelete={handleFileRemove}
+                    style={{ height: "2.8rem", width: "5rem" }}
+                  ></FileMosaic>
+                </FilesUiProvider>
+              </div>
+            )}
 
-            <Tooltip title="send" arrow>
+            {authStatus && !currentFileChat && importedFileName && (
+              <FilesUiProvider config={{ darkMode: true }}>
+                <FileMosaic
+                  name={importedFileName}
+                  type="text/plain"
+                  onDelete={handleFileRemove}
+                  style={{ height: "2.8rem", width: "3rem" }}
+                ></FileMosaic>
+              </FilesUiProvider>
+            )}
+
+            <Tooltip title="send" arrow placement="top">
               <IconButton
-                disabled={isApiProcessing}
+                disabled={streamingStatus}
                 onClick={() => handleSendMessage()}
               >
                 <SendIcon style={{ color: "white" }} />
@@ -529,14 +580,17 @@ export default function ChatArea() {
                 title={
                   uploadedFile || currentFileChat
                     ? "Change File"
-                    : "Upload File"
+                    : "Attach File"
                 }
                 arrow
               >
-                <img
+                {/* <img
                   src={process.env.PUBLIC_URL + "/img/file.png"}
                   style={{ height: "2.2rem" }}
-                ></img>
+                ></img> */}
+                <AttachFileIcon
+                  style={{ height: "2rem", width: "2rem", color: "white" }}
+                ></AttachFileIcon>
               </Tooltip>
               <input
                 type="file"

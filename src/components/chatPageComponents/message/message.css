@@ -19,28 +19,34 @@
 }
 
 .message-content {
-  padding: 10px;
+  padding:  0.5rem 0.5rem;
+  margin-left: 3rem;
   border-radius: 8px;
   max-width: 30%;
   margin-bottom: 2rem;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-family: "Poppins", sans-serif;
-  line-height: 1.9rem;
+  line-height: 2rem;
   color: white;
+  background: rgb(28, 30, 58, 1);
+
 }
 
 .bot-content {
-  padding: 1rem;
+  margin-left: 3rem;
+  padding: 0.5rem;
+  /* padding: 3px 3.3rem; */
+
   border-radius: 8px;
   /* background-color: #f0f0f0; */
   max-width: 70%;
   margin-bottom: 0.2rem;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-family: "Poppins", sans-serif;
-  line-height: 2rem;
+  line-height: 1.8rem;
   word-wrap: break-word;
   color: white;
-  background: rgb(28, 30, 58, 1);
+  line-height: 2rem;
 }
 
 .msg-head {
@@ -67,6 +73,7 @@
   margin-bottom: 1rem;
   /* margin-left: 2%; */
   align-items: center;
+  margin-left: 3rem;
 }
 
 .msgIcon {

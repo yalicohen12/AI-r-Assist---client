@@ -65,7 +65,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   };
 
   function handleConversationClicked(): void {
-    console.log(isStreaming)
+    // console.log(isStreaming)
     if (!isStreaming) {
       if (!fromDelete) {
         localStorage.setItem("conversationID", conversationID);

@@ -16,18 +16,25 @@ interface ConversationsList {
   conversationID: string;
 }
 
-const instance = axios.create({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
+// console.log("now: ", localStorage.getItem("token"));
+// const instance = axios.create({
+//   headers: {
+//     Authorization: `Bearer ${localStorage.getItem("token")}`,
+//   },
+// });
 
 export async function getConversations(): Promise<ConversationsList[]> {
+  // console.log("making call getCo");
   try {
-    const conversationsResponse = await instance.post(
+    const conversationsResponse = await axios.post(
       "http://localhost:4000/getConversations",
       {
         userID: localStorage.getItem("userID"),
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
     );
 
@@ -39,15 +46,22 @@ export async function getConversations(): Promise<ConversationsList[]> {
 }
 
 export async function getConversation() {
+  // console.log("making call getCon");
+
   const conversationID = localStorage.getItem("conversationID");
   if (!conversationID) {
     return "missing conv id";
   }
   try {
-    const conversation = await instance.post(
+    const conversation = await axios.post(
       "http://localhost:4000/getConversation",
       {
         conversationID: conversationID,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
     );
     return conversation.data;
@@ -75,11 +89,12 @@ export async function createConversation(
       formData.append("fileName", fileName);
       formData.append("modelStatus", modelStatus);
 
-      const conversation = await instance.post(
+      const conversation = await axios.post(
         "http://localhost:4000/createConversation",
         formData,
         {
           headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "multipart/form-data", // Set content type to multipart/form-data
           },
         }
@@ -92,7 +107,7 @@ export async function createConversation(
       throw error;
     }
   } else {
-    const conversation = await instance.post(
+    const conversation = await axios.post(
       "http://localhost:4000/createConversation",
       {
         userID: userID,
@@ -101,6 +116,11 @@ export async function createConversation(
         file: file,
         fileName: fileName,
         modelStatus: modelStatus,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
     );
     localStorage.setItem("conversationID", conversation.data.conversationID);
@@ -133,11 +153,12 @@ export async function uploadToConversation(
       formData.append("fileName", fileName);
       formData.append("modelStatus", modelStatus);
 
-      const conversation = await instance.post(
+      const conversation = await axios.post(
         "http://localhost:4000/postToConversation",
         formData,
         {
           headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "multipart/form-data", // Set content type to multipart/form-data
           },
         }
@@ -149,7 +170,7 @@ export async function uploadToConversation(
     }
   } else {
     try {
-      const conversation = await instance.post(
+      const conversation = await axios.post(
         "http://localhost:4000/postToConversation",
         {
           userID: userID,
@@ -160,6 +181,12 @@ export async function uploadToConversation(
           modelStatus: modelStatus,
           // file: file,
         }
+        ,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
       );
 
       return conversation.data as string;
@@ -202,10 +229,18 @@ export async function deleteConversation(conID: string) {
   console.log("deleting in api");
   if (localStorage.getItem("userID")) {
     try {
-      instance.post("http://localhost:4000/deleteConversation", {
+      axios.post("http://localhost:4000/deleteConversation", {
         userID: localStorage.getItem("userID"),
         conversationID: conID,
-      });
+      }
+      ,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    
+    );
       // localStorage.setItem("conversationID", "");
     } catch {}
   }
@@ -217,12 +252,19 @@ export async function regenerateResponse(index: number, modelStatus: string) {
     localStorage.getItem("conversationID")
   ) {
     try {
-      const res = await instance.post("http://localhost:4000/regenerateResponse", {
+      const res = await axios.post("http://localhost:4000/regenerateResponse", {
         userID: localStorage.getItem("userID"),
         conversationID: localStorage.getItem("conversationID"),
         index: index,
         modelStatus: modelStatus,
-      });
+      }
+      ,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
       return res.data;
     } catch (err) {
       console.log(err);
@@ -234,11 +276,18 @@ export async function regenerateResponse(index: number, modelStatus: string) {
 export async function deleteMsg(index: number, conID: string) {
   if (localStorage.getItem("userID")) {
     try {
-      instance.post("http://localhost:4000/deleteMessage", {
+      axios.post("http://localhost:4000/deleteMessage", {
         userID: localStorage.getItem("userID"),
         conversationID: conID,
         index: index,
-      });
+      }
+      ,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
     } catch (err) {
       console.log(err);
     }
@@ -253,13 +302,20 @@ export async function saveConversation(
 ) {
   if (localStorage.getItem("userID")) {
     try {
-      instance.post("http://localhost:4000/saveConversationFile", {
+      axios.post("http://localhost:4000/saveConversationFile", {
         userID: localStorage.getItem("userID"),
         conversationID: conID,
         title: title,
         introduction: introduction,
         fileType: fileType,
-      });
+      }
+      ,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
       return "File saved";
     } catch {
       return "error in proccess";
@@ -273,11 +329,18 @@ export async function renameConversation(
 ) {
   if (localStorage.getItem("userID")) {
     try {
-      await instance.post("http://localhost:4000/renameConversation", {
+      await axios.post("http://localhost:4000/renameConversation", {
         userID: localStorage.getItem("userID"),
         conversationID: conversationID,
         newName: newName,
-      });
+      }
+      ,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
       return "File saved";
     } catch {
       return "error in proccess";

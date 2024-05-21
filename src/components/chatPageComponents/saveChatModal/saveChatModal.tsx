@@ -120,8 +120,32 @@ export default function SaveChatModal({
               onChange={handleRadioChange}
               style={{ color: "white" }}
             >
-              <FormControlLabel value="txt" control={<Radio />} label="txt" />
-              <FormControlLabel value="Pdf" control={<Radio />} label="Pdf" />
+              <FormControlLabel
+                value="txt"
+                control={<Radio />}
+                sx={{
+                  "& .MuiSvgIcon-root": {
+                    fontSize: 24,
+                    borderRadius: "50%",
+                    boxSizing: "border-box",
+                    color: "blue",
+                  },
+                }}
+                label="txt"
+              />
+              <FormControlLabel
+                value="Pdf"
+                control={<Radio />}
+                sx={{
+                  "& .MuiSvgIcon-root": {
+                    fontSize: 24,
+                    borderRadius: "50%",
+                    boxSizing: "border-box",
+                    color: "blue",
+                  },
+                }}
+                label="Pdf"
+              />
             </RadioGroup>
           </FormControl>
 
@@ -143,7 +167,11 @@ export default function SaveChatModal({
               onChange={(e) => setDummyText(e.target.value)}
               className="textarea"
               cols={50}
-              style={{ color:"white" ,fontSize: "1rem", backgroundColor: "transparent" }}
+              style={{
+                color: "white",
+                fontSize: "1rem",
+                backgroundColor: "transparent",
+              }}
             />
           </div>
           <div className="Save-Chat-Btns">

@@ -20,7 +20,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import { regenerateResponse } from "../../../services/apis/conversationsAPI";
 import { Javascript } from "@mui/icons-material";
 import { dark } from "@mui/material/styles/createPalette";
-import { turnStreamOff } from "../../../state/streamingStatus";
+import { turnStreamOff, turnStreamOn } from "../../../state/streamingStatus";
+import LoadingIcons from "react-loading-icons";
 
 interface MessageProps {
   sender: string;
@@ -47,7 +48,11 @@ const DisplayMessage: React.FC<MessageProps> = ({
   const [loading, setIsLoading] = useState(false);
   const [streaming, setSteraming] = useState(false);
 
+  const dispatch = useAppDispatch();
+
   const [currentChunk, setCurrentChunk] = useState<string>("");
+
+  const [generatingCode, setIsGeneratingCode] = useState(false);
 
   const [regenrateFlag, setregenerateFlag] = useState(false);
 
@@ -58,8 +63,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
   const modelStatus = useAppSelector((state) => state.modelSlice.model);
 
   const [inCodeBlock, setIsOnCodeBlock] = useState(false);
-
-  const dispatch = useAppDispatch();
 
   const [isCopied, setCopied] = useState(false);
 
@@ -94,10 +97,15 @@ const DisplayMessage: React.FC<MessageProps> = ({
     newSocket.on("connect", () => {
       console.log("Connected to socket server is: ", sender, messageID);
       setIsLoading(true);
+      dispatch(turnStreamOn());
     });
 
     newSocket.on("error", (error) => {
       console.error("Error:", error.message);
+    });
+
+    newSocket.on("generatingCode", () => {
+      setIsGeneratingCode((prevState) => !prevState);
     });
 
     newSocket.on("generated_text", (textChunk): void => {
@@ -119,6 +127,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
       setSteraming(false);
       setregenerateFlag(false);
       newSocket.disconnect(); // Disconnect the newSocket instance
+      setIsGeneratingCode(false);
     });
 
     setSocket(newSocket);
@@ -194,18 +203,28 @@ const DisplayMessage: React.FC<MessageProps> = ({
       </div>
       <div className={isUserSender ? "message-content" : "bot-content"}>
         {accumulatedContent && streaming && (
-          <RenderContent
+          // <RenderContent
+          //   content={accumulatedContent}
+          //   setIsOnCodeBlock={setIsOnCodeBlock}
+          //   inCodeBlock={inCodeBlock}
+          // />
+          <RenderFetchedContent
             content={accumulatedContent}
-            setIsOnCodeBlock={setIsOnCodeBlock}
-            inCodeBlock={inCodeBlock}
-          />
+            genertaingCode={generatingCode}
+          ></RenderFetchedContent>
         )}
         {accumulatedContent && !streaming && (
-          <RenderFetchedContent content={accumulatedContent} />
+          <RenderFetchedContent
+            content={accumulatedContent}
+            genertaingCode={generatingCode}
+          />
         )}
 
         {!regenrateFlag && !accumulatedContent && value != "you fail" && (
-          <RenderFetchedContent content={value}></RenderFetchedContent>
+          <RenderFetchedContent
+            content={value}
+            genertaingCode={generatingCode}
+          ></RenderFetchedContent>
         )}
         {loading && <LoadingSpinner></LoadingSpinner>}
       </div>
@@ -273,33 +292,52 @@ const DisplayMessage: React.FC<MessageProps> = ({
 
 const RenderFetchedContent: React.FC<{
   content: string;
-}> = ({ content }) => {
-  // Regular expression to match code blocks
-  const codeBlockRegex = /```([^`]+)```/g;
+  genertaingCode: boolean;
+}> = ({ content, genertaingCode }) => {
+  content = content.replace(/\*/g, "");
+
+  // content = content.replace(/\n\s*\n/g, "\n");
+
+  content = content.trimStart();
+
+  const codeBlockRegex = /```([\s\S]+?)```/g;
 
   // Split content into parts: code blocks and regular text
   const parts = content.split(codeBlockRegex);
 
   // Render code blocks and regular text
   const renderParts = () => {
-    return parts.map((part, index) => {
+    let lastPartIndex = -1;
+
+    const renderedParts = parts.map((part, index) => {
       if (index % 2 === 0) {
+        lastPartIndex = index;
         // Regular text
-        return <div key={index}>{part}</div>;
+        return (
+          <div style={{ whiteSpace: "pre-wrap" }} key={index}>
+            {part}
+          </div>
+        );
       } else {
         // Code block
         const lang = part.split("\n")[0].trim(); // Extract language from the first line
-        const code = part.replace(/^\s*[\r\n]/g, ""); // Remove leading newline
+        const lines = part.split("\n");
+        const code = lines
+          .slice(1)
+          .join("\n")
+          .replace(/^\s*[\r\n]/g, "");
+        // const code = part.replace(/^\s*[\r\n]/g, ""); // Remove leading newline
         return (
           <SyntaxHighlighter
             key={index}
             language={lang || "plaintext"}
             style={a11yDark}
             customStyle={{
-              backgroundColor: "#1f1f1f",
+              backgroundColor: "#263238",
               padding: "0.5rem",
               borderRadius: "1rem",
-              margin: "1rem 0.2rem",
+              margin: "0.2rem 0rem",
+              lineHeight: "1.6rem",
             }}
             wrapLongLines
           >
@@ -308,6 +346,32 @@ const RenderFetchedContent: React.FC<{
         );
       }
     });
+    if (lastPartIndex !== -1 && genertaingCode) {
+      renderedParts.splice(
+        lastPartIndex + 1,
+        0,
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#0096FF",
+          }}
+        >
+          <div>Generating Code</div>
+          <LoadingIcons.BallTriangle
+            key="loading-icon"
+            style={{
+              fontSize: "2rem",
+              color: "blue",
+              height: "2.5rem",
+              stroke: "black",
+            }}
+          />
+        </div>
+      );
+    }
+    return renderedParts;
   };
 
   return <>{renderParts()}</>;
@@ -318,11 +382,6 @@ const RenderContent: React.FC<{
   setIsOnCodeBlock: (is: boolean) => void;
   inCodeBlock: boolean;
 }> = ({ content, setIsOnCodeBlock, inCodeBlock }) => {
-  // if(content.includes("```")) {
-  //   if(inCodeBlock) {
-
-  //   }
-  // }
   const formattedText = content.replace(/\n/g, "<br/>");
   return <div dangerouslySetInnerHTML={{ __html: formattedText }} />;
 };

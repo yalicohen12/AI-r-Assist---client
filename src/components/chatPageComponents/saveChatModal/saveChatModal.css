@@ -1,20 +1,16 @@
 .saveChatContainer {
   position: fixed;
-  /* top: 47%; */
-  top: 40%;
-  left: 55%;
-  transform: translate(-50%, -50%);
-  background-color: "#FFF";
+  top: 50%;
+  left: 50%;
+  transform: translate(-40%, -50%); /* Center the element by its own dimensions */
+  background-color: rgb(4, 1, 35);
   padding: 3rem;
   width: 35%;
-  height: 65%;
+  height: auto;
   z-index: 1000;
   font-family: "Poppins", sans-serif;
   border-radius: 0.5rem;
   box-shadow: 0px 11px 35px 2px rgba(0, 0, 0, 0.14);
-  background-color: rgb(10, 32, 76);
-  background-color: rgb(4, 1, 35);
-  /* text-align: center; */
   border: 2px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
 }
@@ -46,17 +42,19 @@
   border-radius: 0.4rem;
   font-family: "Poppins", sans-serif;
   outline: none;
+  border: 1px solid #bbb;
+  background-color: transparent;
+  color: white;
 }
+
 .title-input {
   width: 100%;
   padding: 0.8rem 1rem;
   box-sizing: border-box;
   border-radius: 0.2rem;
   font-family: "Poppins", sans-serif;
-  width: 100%;
   outline: none;
   border: 1px solid #bbb;
-  border-radius: 20px;
   background-color: transparent;
   color: white;
 }
@@ -65,32 +63,20 @@
   font-family: "Poppins", sans-serif;
 }
 
+.save-chat-btn, .cancel-chat-btn {
+  padding: 0.7rem 3rem; /* Adjusted padding */
+  margin: 1rem;
+  border-radius: 1rem;
+  outline: none;
+  border: none;
+  font-family: "Poppins", sans-serif;
+  font-size: large;
+  width: 50%;
+  box-sizing: border-box; /* Ensures padding and border are included in the total width */
+}
+
 .save-chat-btn {
-  margin: 1rem;
-  border-radius: 1rem;
-  outline: none;
   background-color: rgb(59, 240, 53);
-  border: none;
-  font-family: "Poppins", sans-serif;
-  padding: 0.7rem 8rem;
-  font-size: large;
-}
-
-.cancel-chat-btn {
-  padding: 0.7rem 8rem;
-  margin: 1rem;
-  border-radius: 1rem;
-  outline: none;
-  background-color: rgb(246, 33, 33);
-  border: none;
-  font-family: "Poppins", sans-serif;
-  margin-top: auto;
-  font-family: "Poppins";
-  font-size: large;
-}
-
-.cancel-chat-btn:hover {
-  background-color: rgb(252, 101, 101);
 }
 
 .save-chat-btn:hover {
@@ -98,10 +84,17 @@
   transition: ease-in-out;
 }
 
+.cancel-chat-btn {
+  background-color: rgb(246, 33, 33);
+}
+
+.cancel-chat-btn:hover {
+  background-color: rgb(252, 101, 101);
+}
+
 .Save-Chat-Btns {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  /* margin-top: 15%; */
 }

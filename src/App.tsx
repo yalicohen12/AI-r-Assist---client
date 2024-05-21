@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import ChatPage from "./pages/chat/chatPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -10,6 +10,7 @@ import UserProfile from "./pages/user/userProfile";
 
 function App() {
   // useEffect(() => {
+
   return (
     <div className="App">
       <BrowserRouter>
