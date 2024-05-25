@@ -36,6 +36,7 @@ export default function SaveChatModal({
     toast.success("File Saved!", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 5000,
+      theme: "dark",
     });
   };
 

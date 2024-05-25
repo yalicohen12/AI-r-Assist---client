@@ -166,7 +166,7 @@ export default function ChatArea() {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const resizeTextArea = () => {
-    console.log("resizeng");
+    // console.log("resizeng");
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "auto";
       textAreaRef.current.style.height =
@@ -200,7 +200,6 @@ export default function ChatArea() {
   // handles scroll down when new message
   useEffect(() => {
     if (messages.length != 0) {
-
       handleScrollDown();
     }
   }, [messages]);
@@ -355,9 +354,11 @@ export default function ChatArea() {
     // if (messagesDiv) {
     //   messagesDiv.scrollTop = messagesDiv.scrollHeight;
     // }
-    const chatArea = document.querySelector(".msgs");
-    if (chatArea) {
-      chatArea.scrollTop = chatArea.scrollHeight;
+    if (modelStatus != "online") {
+      const chatArea = document.querySelector(".msgs");
+      if (chatArea) {
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
     }
     // console.log("in");
   }
@@ -409,18 +410,21 @@ export default function ChatArea() {
             </IconButton>
           </div>
           <div className="logindicator">
-            <IconButton className="icon">
+            <IconButton
+              className="icon"
+              onClick={authStatus ? handleLogout : () => setIsOpen(true)}
+            >
               {authStatus && (
-                <div className="logContainer" onClick={handleLogout}>
+                <div className="logContainer" >
                   <LogoutIcon className="logouticon"></LogoutIcon>
                   <div className="logTxt"> Logout</div>
                 </div>
               )}
               {!authStatus && (
-                <div className="logContainer" onClick={() => setIsOpen(true)}>
+                <div className="logContainer">
                   <div className="logTxt">Login</div>
                   <LoginIcon
-                    onClick={() => setIsOpen(true)}
+                    // onClick={() => setIsOpen(true)}
                     className="logouticon"
                     color="primary"
                   ></LoginIcon>

@@ -60,7 +60,7 @@ export default function FileDrive() {
 
   useEffect(() => {
     const fetchFiles = async () => {
-      console.log("fetching files");
+      // console.log("fetching files");
       const filesList = await getFiles();
       setFiles(filesList);
       // console.log(filesList);
@@ -83,7 +83,7 @@ export default function FileDrive() {
 
   function handleDeleteClick(fileId: any) {
     setCurrentFileID(fileId);
-    console.log("deleting");
+    // console.log("deleting");
     setConfirmDelete(true);
   }
 

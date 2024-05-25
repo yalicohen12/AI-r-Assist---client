@@ -18,6 +18,7 @@ import LoginModal from "../../../pages/auth/loginModal";
 import { stat } from "fs";
 import { updateConversationCount } from "../../../state/countState";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface ConversationProps {
   title: string;
@@ -35,6 +36,10 @@ export default function Sidebar() {
   >([]);
 
   const [hasFetchedYet, sethadFetchedYet] = useState(false);
+
+  const isStreaming = useAppSelector(
+    (state) => state.streamingSlice.isStreaming
+  );
 
   const conID = useAppSelector(
     (state) => state.conversationSlice.conversationID
@@ -126,6 +131,13 @@ export default function Sidebar() {
       // localStorage.setItem("conversationID", "");
     }
   }
+  const notifyStreamingWait = () => {
+    toast.info("please wait until message will finish load", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000,
+      theme: "dark",
+    });
+  };
   // clear comversations when logout
   useEffect(() => {
     if (authStatus == false) {
@@ -134,6 +146,10 @@ export default function Sidebar() {
   }, [authStatus]);
 
   function handlenewConversation() {
+    if (isStreaming) {
+      notifyStreamingWait();
+      return;
+    }
     dispatch(newConversation());
     localStorage.setItem("conversationID", "");
   }
