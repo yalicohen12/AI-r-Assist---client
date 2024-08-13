@@ -47,6 +47,8 @@ import {
   FilesUiProvider,
   FileMosaic,
 } from "@files-ui/react";
+import { jsx } from "@emotion/react";
+
 
 export default function ChatArea() {
   const authStatus = useAppSelector((state) => state.authSlice.isAuth);
@@ -99,6 +101,13 @@ export default function ChatArea() {
   };
 
   const dispatch = useAppDispatch();
+
+  function handleLogout(): void {
+    dispatch(disConnect());
+    dispatch(newConversation());
+    localStorage.clear();
+  }
+  
 
   useEffect(() => {
     dispatch(setPage("Chat"));
@@ -164,6 +173,17 @@ export default function ChatArea() {
 
   const [textareaHeight, setTextareaHeight] = useState("0.2rem");
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // const [spinnerPosition, setSpinnerPosition] = useState<string>("13%");
+  // const messagesRef = useRef<HTMLDivElement | null>(null);
+  // useEffect(() => {
+  //   console.log("mile 1");
+  //   if (messagesRef.current) {
+  //     const containerHeight = messagesRef.current.clientHeight;
+  //     console.log("mile 2: ", containerHeight);
+  //     setSpinnerPosition(`${containerHeight + 5}px`);
+  //   }
+  // }, [messages]);
 
   const resizeTextArea = () => {
     // console.log("resizeng");
@@ -243,7 +263,7 @@ export default function ChatArea() {
     setMessage("");
 
     const msg = (
-      <DisplayMessage sender="You" value={messageVaribale} messageIndex={0} />
+      <DisplayMessage sender={localStorage.getItem("userName")|| "You"} value={messageVaribale} messageIndex={messages.length} />
     );
     if (modelStatus !== "online") {
       setIsApiProcessing(true);
@@ -254,6 +274,7 @@ export default function ChatArea() {
     if (modelStatus === "online") {
       setIsLoading(true);
     }
+    setIsLoading(true);
     console.log(modelStatus);
 
     try {
@@ -270,6 +291,18 @@ export default function ChatArea() {
       const msgID = generateMessageID();
       dispatch(setMessageID(msgID));
       handleScrollDown();
+
+      // let initalMSG: JSX.Element;
+      const initalMSG: JSX.Element = (
+        <DisplayMessage
+          sender="LLama"
+          onlyLoader = {true}
+          value=""
+          messageIndex= {199}
+        />
+      );
+      setMessages((prevMessages) => [...prevMessages , initalMSG]);
+
 
       const response = await handleNewQuestion(
         messageVaribale,
@@ -307,7 +340,10 @@ export default function ChatArea() {
       }
       setMessage("");
 
+      setMessages((prevMessages) => prevMessages.slice(0, -1));
+      
       setMessages((prevMessages) => [...prevMessages, apiResponseMessage]);
+    
     } catch (err) {
       console.error(err);
       <DisplayMessage
@@ -362,13 +398,6 @@ export default function ChatArea() {
     }
     // console.log("in");
   }
-
-  function handleLogout(): void {
-    dispatch(disConnect());
-    dispatch(newConversation());
-    localStorage.clear();
-  }
-
   useEffect(() => {
     if (conID) {
       fetchConversationMessages();
@@ -415,7 +444,7 @@ export default function ChatArea() {
               onClick={authStatus ? handleLogout : () => setIsOpen(true)}
             >
               {authStatus && (
-                <div className="logContainer" >
+                <div className="logContainer">
                   <LogoutIcon className="logouticon"></LogoutIcon>
                   <div className="logTxt"> Logout</div>
                 </div>
@@ -441,11 +470,20 @@ export default function ChatArea() {
         )}
         {/* <div className="circle"></div> */}
         {!messages || messages.length === 0 ? null : <>{messages}</>}
-        {isLoading && (
-          <div style={{ position: "absolute", left: "25%", bottom: "13%" }}>
+        {/* {isLoading && (
+          <div
+            style={{
+              position: "absolute",
+              left: "31%",
+              bottom: "0%",
+              backgroundColor: "rgb(28, 30, 58, 1)",
+              padding: "0.4rem",
+              borderRadius: "1rem",
+            }}
+          >
             <LoadingSpinner></LoadingSpinner>
           </div>
-        )}
+        )} */}
       </div>
       {message && (
         <div className="anot-container">

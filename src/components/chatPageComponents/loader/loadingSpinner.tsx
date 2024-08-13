@@ -17,6 +17,10 @@ const LoadingSpinner: React.FC = () => {
         gap: "0.4rem",
         alignItems: "center",
         justifyContent: "center",
+        backgroundColor: "rgb(28, 30, 58, 1)",
+        padding: "0.4rem",
+        borderRadius: "1rem" ,
+        marginLeft: " 1rem",
         // gap: "0.3rem",
       }}
     >

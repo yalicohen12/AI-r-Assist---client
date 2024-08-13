@@ -66,74 +66,78 @@ const DisplayMessage: React.FC<MessageProps> = ({
 
   const [isCopied, setCopied] = useState(false);
 
+  // useEffect(() => {
+  //   if (
+  //     sender === "LLama" &&
+  //     // messageIndex != 0 &&
+  //     messageState === messageID &&
+  //     value === "you fail" &&
+  //     onlyLoader === false
+  //   ) {
+  //     if (!socket) {
+  //       getMsg();
+  //     }
+  //   } else {
+  //     if (socket) {
+  //       socket.disconnect();
+  //       setSocket(null);
+  //     }
+  //   }
+  //   return () => {
+  //     setAccumulatedContent("");
+  //   };
+  // }, []);
+
+  // function getMsg() {
+  //   console.log("i am in the msg");
+  //   const newSocket = io("http://localhost:8080", {
+  //     transports: ["websocket"],
+  //   });
+
+  //   newSocket.on("connect", () => {
+  //     console.log("Connected to socket server is: ", sender, messageID);
+  //     setIsLoading(true);
+  //     dispatch(turnStreamOn());
+  //   });
+
+  //   newSocket.on("error", (error) => {
+  //     console.error("Error:", error.message);
+  //   });
+
+  //   newSocket.on("generatingCode", () => {
+  //     setIsGeneratingCode((prevState) => !prevState);
+  //   });
+
+  //   newSocket.on("generated_text", (textChunk): void => {
+  //     setIsLoading(false);
+  //     if (!streaming) {
+  //       setSteraming(true);
+  //     }
+
+  //     setAccumulatedContent((prevContent) => prevContent + textChunk);
+  //     setCurrentChunk(textChunk);
+  //     // setValueState((prevContent) => prevContent + textChunk)
+  //   });
+
+  //   newSocket.on("stream_end", () => {
+  //     dispatch(turnStreamOff());
+  //     console.log("ending");
+  //     if (regenrateFlag) {
+  //     }
+  //     setSteraming(false);
+  //     setregenerateFlag(false);
+  //     newSocket.disconnect(); // Disconnect the newSocket instance
+  //     setIsGeneratingCode(false);
+  //   });
+
+  //   setSocket(newSocket);
+  // }
+
   useEffect(() => {
-    if (
-      sender === "LLama" &&
-      // messageIndex != 0 &&
-      messageState === messageID &&
-      value === "you fail" &&
-      onlyLoader === false
-    ) {
-      if (!socket) {
-        getMsg();
-      }
-    } else {
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
-      }
-    }
-    return () => {
-      setAccumulatedContent("");
-    };
+    console.log("meesage idx is: ", messageIndex, "message value is: ", value);
   }, []);
 
-  function getMsg() {
-    console.log("i am in the msg");
-    const newSocket = io("http://localhost:8080", {
-      transports: ["websocket"],
-    });
-
-    newSocket.on("connect", () => {
-      console.log("Connected to socket server is: ", sender, messageID);
-      setIsLoading(true);
-      dispatch(turnStreamOn());
-    });
-
-    newSocket.on("error", (error) => {
-      console.error("Error:", error.message);
-    });
-
-    newSocket.on("generatingCode", () => {
-      setIsGeneratingCode((prevState) => !prevState);
-    });
-
-    newSocket.on("generated_text", (textChunk): void => {
-      setIsLoading(false);
-      if (!streaming) {
-        setSteraming(true);
-      }
-
-      setAccumulatedContent((prevContent) => prevContent + textChunk);
-      setCurrentChunk(textChunk);
-      // setValueState((prevContent) => prevContent + textChunk)
-    });
-
-    newSocket.on("stream_end", () => {
-      dispatch(turnStreamOff());
-      console.log("ending");
-      if (regenrateFlag) {
-      }
-      setSteraming(false);
-      setregenerateFlag(false);
-      newSocket.disconnect(); // Disconnect the newSocket instance
-      setIsGeneratingCode(false);
-    });
-
-    setSocket(newSocket);
-  }
-
-  const isUserSender = sender === "You";
+  const isUserSender = sender != "LLama";
 
   useEffect(() => {
     if (isCopied) {
@@ -162,9 +166,7 @@ const DisplayMessage: React.FC<MessageProps> = ({
     const regenRes = await regenerateResponse(messageIndex, modelStatus);
     if (!regenRes.aiResponse) {
       setAccumulatedContent("");
-      // setValueState("");
       setregenerateFlag(true);
-      getMsg();
     } else {
       setAccumulatedContent(regenRes.aiResponse);
     }
@@ -174,7 +176,29 @@ const DisplayMessage: React.FC<MessageProps> = ({
   if (onlyLoader) {
     return (
       <div className="message-container">
-        <LoadingSpinner></LoadingSpinner>
+        <div className="msg-head">
+          <IconButton>
+            {isUserSender ? (
+              <AccountCircleIcon
+                style={{ fontSize: "2rem" }}
+                className="userIcon"
+                color="primary"
+              />
+            ) : (
+              <IconButton>
+                <img
+                  src={process.env.PUBLIC_URL + "/img/llama.png"}
+                  className="userIcon"
+                  alt="Bamza 108"
+                />
+              </IconButton>
+            )}
+          </IconButton>
+          <div className="msg-sender">{sender}</div>
+        </div>
+        <div className="bot-content">
+          <LoadingSpinner></LoadingSpinner>
+        </div>
       </div>
     );
   }
@@ -203,11 +227,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
       </div>
       <div className={isUserSender ? "message-content" : "bot-content"}>
         {accumulatedContent && streaming && (
-          // <RenderContent
-          //   content={accumulatedContent}
-          //   setIsOnCodeBlock={setIsOnCodeBlock}
-          //   inCodeBlock={inCodeBlock}
-          // />
           <RenderFetchedContent
             content={accumulatedContent}
             genertaingCode={generatingCode}
@@ -276,13 +295,6 @@ const DisplayMessage: React.FC<MessageProps> = ({
               borderRadius: "1rem",
             }}
           >
-            {/* {messageID>1 &&<Tooltip title="Delete" arrow>
-              <IconButton onClick={handleDelete}>
-                <DeleteIcon
-                  style={{ color: "red", fontSize: "1.4rem" }}
-                ></DeleteIcon>
-              </IconButton>
-            </Tooltip>} */}
           </div>
         </div>
       )}
@@ -314,13 +326,16 @@ const RenderFetchedContent: React.FC<{
         lastPartIndex = index;
         // Regular text
         return (
-          <div style={{ whiteSpace: "pre-wrap" }} key={index}>
+          <div
+            style={{ whiteSpace: "pre-wrap", fontSize: "meduim" }}
+            key={index}
+          >
             {part}
           </div>
         );
       } else {
         // Code block
-        const lang = part.split("\n")[0].trim(); // Extract language from the first line
+        const lang = part.split("\n")[0].trim(); 
         const lines = part.split("\n");
         const code = lines
           .slice(1)
